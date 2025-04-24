@@ -1,28 +1,57 @@
 <script setup>
-
+import { ref } from 'vue'
+const hovering = ref(false)
+const handleMouseEnter = () => {
+    hovering.value = true
+}
+const handleMouseLeave = () => {
+    hovering.value = false
+}
 const handleDownload = () => {
     console.log("Downloading...")
 }
 </script>
 
 <template>
-    <div>
-        <i class="pi pi-qrcode"></i>
-        <i class="pi pi-download download-icon" @click="handleDownload"></i>
+    <div 
+        id="wrapper"
+        @click="() => hovering = !hovering"
+        @mouseenter="() => hovering = true"
+        @mouseleave="() => hovering = false"
+    >
+        <i class="pi pi-qrcode" @click="handleDownload"></i>
+        <i id="download-icon" class="pi pi-download" @click="handleDownload"></i>
+        <div id="info" v-if="hovering">
+            <i class="pi pi-question-circle"></i> &nbsp;
+            <text>Download QR Code</text>
+        </div>
     </div>
 </template>
 
 <style scoped>
-    div{
+    #wrapper{
         display: flex;
-        justify-content: space-between;
+        justify-content: space-evenly;
         align-items: center;
-        height: 40px;
-        width: 100px;
-        background: var(--primary-gradient);
+        position: relative;
+        column-gap: 5px;
+        padding: 5px;
     }
-    download-icon{
+    #download-icon:hover{
         cursor: pointer;
         color: var(--primary);
+    }
+    #info{
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        padding: 0px 2px;
+        position: absolute;
+        top: auto;
+        bottom: 100%;
+        right: 0;
+        white-space: nowrap;
+        border: 1px solid black;
+        background: lightgray;
     }
 </style>

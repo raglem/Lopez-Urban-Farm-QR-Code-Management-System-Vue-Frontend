@@ -1,0 +1,122 @@
+[
+    {
+        "id": 1,
+        "name": "Tomato",
+        "species": "Solanum lycopersicum",
+        "description": "A red, juicy fruit commonly used in salads and cooking."
+    },
+    {
+        "id": 2,
+        "name": "Basil",
+        "species": "Ocimum basilicum",
+        "description": "A fragrant herb often used in Italian cuisine."
+    },
+    {
+        "id": 3,
+        "name": "Carrot",
+        "species": "Daucus carota",
+        "description": "A crunchy orange root vegetable rich in beta-carotene."
+    },
+    {
+        "id": 4,
+        "name": "Lettuce",
+        "species": "Lactuca sativa",
+        "description": "A leafy green vegetable commonly used in salads."
+    },
+    {
+        "id": 5,
+        "name": "Cucumber",
+        "species": "Cucumis sativus",
+        "description": "A refreshing green vegetable often eaten raw."
+    },
+    {
+        "id": 6,
+        "name": "Strawberry",
+        "species": "Fragaria × ananassa",
+        "description": "A sweet red fruit with seeds on its surface."
+    },
+    {
+        "id": 7,
+        "name": "Rosemary",
+        "species": "Salvia rosmarinus",
+        "description": "An aromatic herb used in cooking and for medicinal purposes."
+    },
+    {
+        "id": 8,
+        "name": "Spinach",
+        "species": "Spinacia oleracea",
+        "description": "A nutrient-rich leafy green vegetable."
+    },
+    {
+        "id": 9,
+        "name": "Zucchini",
+        "species": "Cucurbita pepo",
+        "description": "A versatile green squash used in various dishes."
+    },
+    {
+        "id": 10,
+        "name": "Pepper",
+        "species": "Capsicum annuum",
+        "description": "A colorful vegetable that can be sweet or spicy."
+    },
+    {
+        "id": 11,
+        "name": "Mint",
+        "species": "Mentha",
+        "description": "A refreshing herb often used in teas and desserts."
+    },
+    {
+        "id": 12,
+        "name": "Pumpkin",
+        "species": "Cucurbita maxima",
+        "description": "A large orange fruit often used in pies and decorations."
+    },
+    {
+        "id": 13,
+        "name": "Parsley",
+        "species": "Petroselinum crispum",
+        "description": "A popular herb used as a garnish or seasoning."
+    },
+    {
+        "id": 14,
+        "name": "Eggplant",
+        "species": "Solanum melongena",
+        "description": "A purple vegetable often used in Mediterranean dishes."
+    },
+    {
+        "id": 15,
+        "name": "Kale",
+        "species": "Brassica oleracea var. sabellica",
+        "description": "A leafy green vegetable known for its health benefits."
+    },
+    {
+        "id": 16,
+        "name": "Thyme",
+        "species": "Thymus vulgaris",
+        "description": "A fragrant herb used in cooking and herbal remedies."
+    },
+    {
+        "id": 17,
+        "name": "Blueberry",
+        "species": "Vaccinium corymbosum",
+        "description": "A small, sweet blue fruit rich in antioxidants."
+    },
+    {
+        "id": 18,
+        "name": "Radish",
+        "species": "Raphanus sativus",
+        "description": "A crunchy root vegetable with a peppery flavor."
+    },
+    {
+        "id": 19,
+        "name": "Chives",
+        "species": "Allium schoenoprasum",
+        "description": "A mild onion-flavored herb used as a garnish."
+    },
+    {
+        "id": 20,
+        "name": "Watermelon",
+        "species": "Citrullus lanatus",
+        "description": "A large, juicy fruit with a green rind and red flesh."
+    }
+]
