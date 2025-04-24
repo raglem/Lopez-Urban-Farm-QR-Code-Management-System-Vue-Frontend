@@ -1,7 +1,9 @@
 <script setup>
     import { ref } from 'vue'
+    import { useRouter, useRoute } from 'vue-router'
 
-    const active = ref(false)
+    const router = useRouter()
+    const route = useRoute()
 </script>
 
 <template>
@@ -9,10 +11,10 @@
         <h2>Lopez Urban Farm</h2>
 
         <div class="btn-group">
-            <button :class="active ? 'active' : 'inactive' ">
+            <button class="inactive" @click="() => router.push('/view')">
                 View
             </button>
-            <button :class="active ? 'active' : 'inactive' ">
+            <button class="inactive" @click="() => router.push('/add')">
                 Add
             </button>
         </div>
