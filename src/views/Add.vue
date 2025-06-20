@@ -13,13 +13,7 @@ const $toast = useToast();
 const router = useRouter()
 
 const handleSubmit = () => {
-    $toast.success(`${name.value} was successfully added`, {
-        position: 'top-right',
-        duration: 2000,
-        dismissible: true,
-        type: 'success',
-    });
-
+    $toast.success(`${name.value} was successfully added`, toastConfig('success'));
     router.push('/view')
 }
 

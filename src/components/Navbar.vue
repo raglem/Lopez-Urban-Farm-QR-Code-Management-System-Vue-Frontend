@@ -1,9 +1,17 @@
 <script setup>
     import { ref } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
+    import isAuthenticated from '../router/isAuthenticated.js'
 
     const router = useRouter()
     const route = useRoute()
+    const isLoggedIn = ref(true)
+
+    const handleLogout = () => {
+        localStorage.clear()
+        isLoggedIn.value = false
+        router.push('/login')
+    }
 </script>
 
 <template>
@@ -14,8 +22,11 @@
             <button class="inactive" @click="() => router.push('/view')">
                 View
             </button>
-            <button class="inactive" @click="() => router.push('/add')">
+            <button class="inactive" v-if="isLoggedIn" @click="() => router.push('/add')">
                 Add
+            </button>
+            <button class="inactive" v-if="isLoggedIn" @click="handleLogout">
+                Logout
             </button>
         </div>
     </nav>
