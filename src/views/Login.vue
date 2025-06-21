@@ -33,8 +33,15 @@
             localStorage.setItem('ROLE', response.data.role)
             router.push('/view')
         } catch (error) {
-            $toast.error('Login failed. Please check your credentials.', toastConfig('error'))
-            console.error(error)
+            if(err.response.data.message){
+                $toast.error(`Error logging in: ${err.response.data.message}`, toastConfig('error'));
+            }
+            else if(err.message){
+                $toast.error(`Error logging in: ${err.message}`, toastConfig('error'));
+            }
+            else{
+                $toast.error('Error logging in', toastConfig('error'));
+            }
         } finally {
             loading.value = false
         }

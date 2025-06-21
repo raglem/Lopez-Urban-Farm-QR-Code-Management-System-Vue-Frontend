@@ -5,8 +5,8 @@
     
     const router = useRouter()
     const props = defineProps({
-        id: {
-            type: Number,
+        _id: {
+            type: String,
             required: true
         },
         name: {
@@ -20,6 +20,10 @@
         description: {
             type: String,
             required: true
+        },
+        edit: {
+            type: Boolean,
+            required: true
         }
     })
 </script>
@@ -28,7 +32,8 @@
     <article>
         <header>
             <h4 @click="router.push(`/plant/${props.id}`)">{{ name }} | Species: {{ species }}</h4>
-            <Download />
+            <i class="pi pi-pencil" v-if="edit" @click="router.push(`/edit/${props.id}`)"></i>
+            <Download v-if="edit === false"/>
         </header>
         <p> {{ description }} </p>
     </article>
@@ -47,9 +52,12 @@
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        padding-left: 5px;
+        padding: 0px 10px;
         height: 30%;
         border-bottom: 1px solid black;
+    }
+    header i{
+        color: var(--primary);
     }
     p{
         padding: 0px 5px;

@@ -3,7 +3,9 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toast-notification'
 import 'vue-toast-notification/dist/theme-sugar.css';
-import plants from '../assets/plants.json'
+import toastConfig from '../assets/toastNotification.js'
+
+import api from '../api.js'
 
 const name = ref('')
 const species = ref('')
@@ -12,9 +14,28 @@ const $toast = useToast();
 
 const router = useRouter()
 
-const handleSubmit = () => {
-    $toast.success(`${name.value} was successfully added`, toastConfig('success'));
-    router.push('/view')
+const handleSubmit = async () => {
+    try{
+        const response = await api.post('/plants/add', {
+            name: name.value,
+            species: species.value,
+            description: description.value
+        })
+        $toast.success(`${name.value} was successfully added`, toastConfig('success'));
+        router.push('/view')
+    }
+    catch(err){
+        if(err.response.data.message){
+            $toast.error(`Error adding plant: ${err.response.data.message}`, toastConfig('error'));
+        }
+        else if(err.message){
+            $toast.error(`Error adding plant: ${err.message}`, toastConfig('error'));
+        }
+        else{
+            $toast.error('Error adding plant', toastConfig('error'));
+        }
+        return;
+    }
 }
 
 const handlePreview = () => {
@@ -30,6 +51,7 @@ const handlePreview = () => {
 <template>
     <div id="wrapper">
         <form @submit.prevent="handleSubmit">
+            <h1>Add New Plant</h1>
             <div>
                 <label for="name">Name</label>
                 <input type="text" id="name" name="name" required v-model="name">
@@ -69,9 +91,7 @@ const handlePreview = () => {
         flex-direction: column;
         align-items: stretch;
         padding: 20px;
-        border-color: green;
-        border-width: 1px;
-        border-style: solid;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
         row-gap: 20px;
         width: 80vw;
         max-width: 600px;
@@ -107,6 +127,7 @@ const handlePreview = () => {
         width: 100px;
         border-radius: 5px;
         color: black;
+        border-color: darkgray;
     }
     .btn-group{
         display: flex;
@@ -114,6 +135,9 @@ const handlePreview = () => {
         justify-content: space-between;
         align-items: center;
         column-gap: 10px;
+    }
+    .btn-group button{
+        color: white;
     }
     #preview{
         background: lightgray;

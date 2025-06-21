@@ -1,16 +1,36 @@
 <script setup>
     import { ref } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
+    import { useToast } from 'vue-toast-notification'
+    import 'vue-toast-notification/dist/theme-sugar.css';
     import isAuthenticated from '../router/isAuthenticated.js'
+    import toastConfig from "../assets/toastNotification.js"
 
     const router = useRouter()
     const route = useRoute()
     const isLoggedIn = ref(true)
-
+    const $toast = useToast
+    
+    const handleView = () => {
+        router.push('/view')
+    }
+    const handleAdd = () => {
+        checkAuthentication()
+        if(isLoggedIn.value){
+            router.push('/add')
+        }
+    }
     const handleLogout = () => {
         localStorage.clear()
         isLoggedIn.value = false
         router.push('/login')
+    }
+    const checkAuthentication = () => {
+        isLoggedIn.value = isAuthenticated()
+        if (!isLoggedIn.value && route.path !== '/login') {
+            $toast.error('Login has expired. Please login again', toastConfig('error'))
+            router.push('/login')
+        }
     }
 </script>
 
@@ -19,10 +39,10 @@
         <h2>Lopez Urban Farm</h2>
 
         <div class="btn-group">
-            <button class="inactive" @click="() => router.push('/view')">
+            <button class="inactive" @click="handleView">
                 View
             </button>
-            <button class="inactive" v-if="isLoggedIn" @click="() => router.push('/add')">
+            <button class="inactive" v-if="isLoggedIn" @click="handleAdd">
                 Add
             </button>
             <button class="inactive" v-if="isLoggedIn" @click="handleLogout">

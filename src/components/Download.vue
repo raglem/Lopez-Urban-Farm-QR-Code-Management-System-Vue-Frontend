@@ -35,7 +35,6 @@ const handleDownload = () => {
         align-items: center;
         position: relative;
         column-gap: 5px;
-        padding: 5px;
     }
     #download-icon:hover{
         cursor: pointer;
@@ -45,7 +44,6 @@ const handleDownload = () => {
         display: flex;
         justify-content: space-evenly;
         align-items: center;
-        padding: 0px 2px;
         position: absolute;
         top: auto;
         bottom: 100%;
