@@ -8,10 +8,17 @@
     import isAuthenticated from '../router/isAuthenticated';
     import PlantCard from '../components/PlantCard.vue';
 
+    const props = defineProps({
+        editing: {
+            type: Boolean,
+            default: false
+        }
+    })
+
     const plants = ref([])
     const mode = ref('name')
     const order = ref('descending')
-    const editing = ref(false)
+    const editing = ref(props.editing)
     const isLoggedIn = ref(isAuthenticated())
     const $toast = useToast()
 
@@ -32,7 +39,6 @@
         }
         return sorted;
     });
-
     const fetchPlants = async () => {
         try{
             const response = await api.get('/plants/')

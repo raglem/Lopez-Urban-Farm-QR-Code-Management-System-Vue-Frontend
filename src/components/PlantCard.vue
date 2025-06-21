@@ -26,13 +26,30 @@
             required: true
         }
     })
+
+    const handleUpdate = async () => {
+        router.push({
+            name: 'Update',
+            params: {
+                _id: props._id,
+                name: props.name,
+                species: props.species,
+                description: props.description
+            }
+        });
+    }
 </script>
 
 <template>
     <article>
         <header>
             <h4 @click="router.push(`/plant/${props.id}`)">{{ name }} | Species: {{ species }}</h4>
-            <i class="pi pi-pencil" v-if="edit" @click="router.push(`/edit/${props.id}`)"></i>
+            <i 
+                class="pi pi-pencil" 
+                v-if="edit" 
+                @click="handleUpdate"
+            >
+            </i>
             <Download v-if="edit === false"/>
         </header>
         <p> {{ description }} </p>
@@ -58,6 +75,9 @@
     }
     header i{
         color: var(--primary);
+    }
+    header i:hover{
+        cursor: pointer;
     }
     p{
         padding: 0px 5px;
