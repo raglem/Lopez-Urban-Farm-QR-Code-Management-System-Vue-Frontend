@@ -1,5 +1,5 @@
 <script setup>
-    import { ref } from 'vue'
+    import { ref, inject } from 'vue'
     import { useRouter } from 'vue-router'
     import { useToast } from 'vue-toast-notification'
     import 'vue-toast-notification/dist/theme-sugar.css';
@@ -7,6 +7,7 @@
     import api from '../api.js'
     import Loading from '../components/Loading.vue'
     import toastConfig from '../assets/toastNotification.js';
+    import { useUserStore } from '../stores/user.js';
 
     const username = ref('')
     const password = ref('')
@@ -15,6 +16,8 @@
 
     const router = useRouter()
     const $toast = useToast()
+    const userStore = useUserStore()
+    const { login } = userStore
 
     const toggleShowPassword = () => {
         showPassword.value = !showPassword.value
@@ -28,12 +31,15 @@
                 username: username.value,
                 password: password.value
             })
-            localStorage.setItem('ACCESS_TOKEN', response.data.token)
-            localStorage.setItem('USERNAME', username.value)
-            localStorage.setItem('ROLE', response.data.role)
+            const { token, usernameResponse, roleResponse } = response.data
+            localStorage.setItem('ACCESS_TOKEN', token)
+            localStorage.setItem('USERNAME', usernameResponse)
+            localStorage.setItem('ROLE', roleResponse)
+            login(usernameResponse, roleResponse)
             router.push('/view')
-        } catch (error) {
-            if(err.response.data.message){
+        } catch (err) {
+            console.log(err)
+            if(err?.response?.data?.message){
                 $toast.error(`Error logging in: ${err.response.data.message}`, toastConfig('error'));
             }
             else if(err.message){

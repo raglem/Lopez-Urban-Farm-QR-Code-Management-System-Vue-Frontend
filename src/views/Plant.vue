@@ -3,11 +3,28 @@ import { ref } from 'vue'
 import plants from '../assets/plants.json'
 import { useRoute } from 'vue-router'
 
-const route = useRoute()
-const id = parseInt(route.params.id)
-const name = ref(plants[id].name)
-const species = ref(plants[id].species)
-const description = ref(plants[id].description)
+const props = defineProps({
+    _id: {
+        type: String,
+        required: true,
+    },
+    name: {
+        type: String,
+        required: true,
+    },
+    species: {
+        type: String,
+        required: true,
+    },
+    description: {
+        type: String,
+        required: true,
+    }
+})
+
+const name = ref(props.name)
+const species = ref(props.species)
+const description = ref(props.description)
 
 </script>
 

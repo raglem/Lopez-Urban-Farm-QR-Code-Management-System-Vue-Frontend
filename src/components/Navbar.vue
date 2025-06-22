@@ -1,36 +1,34 @@
 <script setup>
-    import { ref } from 'vue'
+    import { ref, inject } from 'vue'
+    import { storeToRefs } from 'pinia';
     import { useRouter, useRoute } from 'vue-router'
     import { useToast } from 'vue-toast-notification'
     import 'vue-toast-notification/dist/theme-sugar.css';
-    import isAuthenticated from '../router/isAuthenticated.js'
     import toastConfig from "../assets/toastNotification.js"
+    import { useUserStore } from '../stores/user.js';
 
     const router = useRouter()
     const route = useRoute()
-    const isLoggedIn = ref(true)
+    const store = useUserStore()
     const $toast = useToast
+
+    const { isAuthenticated } = storeToRefs(store)
+    const { logout } = store
     
     const handleView = () => {
         router.push('/view')
     }
     const handleAdd = () => {
-        checkAuthentication()
-        if(isLoggedIn.value){
+        if(isAuthenticated){
             router.push('/add')
         }
     }
     const handleLogout = () => {
         localStorage.clear()
-        isLoggedIn.value = false
+        logout()
         router.push('/login')
-    }
-    const checkAuthentication = () => {
-        isLoggedIn.value = isAuthenticated()
-        if (!isLoggedIn.value && route.path !== '/login') {
-            $toast.error('Login has expired. Please login again', toastConfig('error'))
-            router.push('/login')
-        }
+
+        $toast.success('You have successfully logged out', toastConfig('success'))
     }
 </script>
 
@@ -42,10 +40,10 @@
             <button class="inactive" @click="handleView">
                 View
             </button>
-            <button class="inactive" v-if="isLoggedIn" @click="handleAdd">
+            <button class="inactive" v-if="isAuthenticated" @click="handleAdd">
                 Add
             </button>
-            <button class="inactive" v-if="isLoggedIn" @click="handleLogout">
+            <button class="inactive" v-if="isAuthenticated" @click="handleLogout">
                 Logout
             </button>
         </div>

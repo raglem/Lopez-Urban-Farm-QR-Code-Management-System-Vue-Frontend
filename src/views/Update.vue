@@ -69,12 +69,7 @@
                     id: props._id
                 }
             })
-            router.push({
-                name: 'View',
-                params: {
-                    editing: false
-                }
-            })
+            router.push({ name: 'View' })
             $toast.success(`${name.value} was successfully deleted`, toastConfig('success'));
         }
         catch(err){

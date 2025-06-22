@@ -27,7 +27,19 @@
         }
     })
 
-    const handleUpdate = async () => {
+    const handlePlant = () => {
+        router.push({
+            name: 'Plant',
+            params: {
+                _id: props._id,
+                name: props.name,
+                species: props.species,
+                description: props.description
+            }
+        });
+    }
+
+    const handleUpdate = () => {
         router.push({
             name: 'Update',
             params: {
@@ -43,7 +55,7 @@
 <template>
     <article>
         <header>
-            <h4 @click="router.push(`/plant/${props.id}`)">{{ name }} | Species: {{ species }}</h4>
+            <h4 @click="handlePlant">{{ name }} | Species: {{ species }}</h4>
             <i 
                 class="pi pi-pencil" 
                 v-if="edit" 

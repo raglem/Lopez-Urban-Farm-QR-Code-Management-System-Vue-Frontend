@@ -1,26 +1,21 @@
 <script setup>
     import { computed, ref, onMounted } from 'vue';
     import { useToast } from 'vue-toast-notification';
+    import { storeToRefs } from 'pinia';
     import 'vue-toast-notification/dist/theme-sugar.css';
     import toastConfig from '../assets/toastNotification';
 
     import api from '../api.js'
-    import isAuthenticated from '../router/isAuthenticated';
     import PlantCard from '../components/PlantCard.vue';
-
-    const props = defineProps({
-        editing: {
-            type: Boolean,
-            default: false
-        }
-    })
+    import { useUserStore } from '../stores/user.js';
 
     const plants = ref([])
     const mode = ref('name')
     const order = ref('descending')
-    const editing = ref(props.editing)
-    const isLoggedIn = ref(isAuthenticated())
+    const editing = ref(false)
     const $toast = useToast()
+    const store = useUserStore()
+    const { isAuthenticated } = storeToRefs(store)
 
     onMounted(() => {
         fetchPlants()
@@ -61,8 +56,8 @@
 
 <template>
     <div id="wrapper">
-        <nav :class="isLoggedIn ? 'space-between' : 'view-mode'">
-            <div id="edit-wrapper" v-if="isLoggedIn">
+        <nav :class="isAuthenticated ? 'space-between' : 'view-mode'">
+            <div id="edit-wrapper" v-if="isAuthenticated">
                 <button id="edit-btn" @click="toggleEdit">
                     <div v-if="!editing">
                         <span>Edit</span>

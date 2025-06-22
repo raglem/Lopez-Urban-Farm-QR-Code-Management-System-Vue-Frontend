@@ -1,18 +1,23 @@
 import { createWebHistory, createRouter } from 'vue-router'
+import { useUserStore } from '../stores/user'
 
 import Add from '../views/Add.vue'
 import Login from '../views/Login.vue'
 import NotFound from '../views/NotFound.vue'
 import Plant from '../views/Plant.vue'
 import View from '../views/View.vue'
-import isAuthenticated from './isAuthenticated'
 import Update from '../views/Update.vue'
 
 const routes = [
   { path: '/login', name: 'Login', component: Login },
-  { path: '/view/:editing?', name: 'View', component: View, props: true },
+  { path: '/view', name: 'View', component: View, props: true },
   { path: '/add', name: 'Add', component: Add },
-  { path: '/plant/:id', name: 'Plant', component: Plant },
+  { 
+    path: '/plant/:_id/:name/:species/:description', 
+    name: 'Plant', 
+    component: Plant, 
+    props: true,
+  },
   { 
     path: '/update/:_id/:name/:species/:description', 
     name: 'Update', 
@@ -28,10 +33,12 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const publicPages = ['/login', '/view', '/plant/:id']
-  const privatePages = ['/add']
+  const store = useUserStore()
+  const isAuthenticated = store.checkAuthentication()
+  const publicPages = ['Login', 'View', 'Plant', 'Not Found']
+  const privatePages = ['Add', 'Update']
 
-  if( !isAuthenticated() && privatePages.includes(to.path) ) {
+  if( !isAuthenticated && privatePages.includes(to.name) ) {
     return next('/login')
   }
   next()
