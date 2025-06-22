@@ -10,7 +10,7 @@
     const router = useRouter()
     const route = useRoute()
     const store = useUserStore()
-    const $toast = useToast
+    const $toast = useToast()
 
     const { isAuthenticated } = storeToRefs(store)
     const { logout } = store

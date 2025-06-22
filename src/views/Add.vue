@@ -6,15 +6,27 @@ import 'vue-toast-notification/dist/theme-sugar.css';
 import toastConfig from '../assets/toastNotification.js'
 
 import api from '../api.js'
+import Loading from '../components/Loading.vue'
 
 const name = ref('')
 const species = ref('')
 const description = ref('')
 const $toast = useToast();
+const loading = ref(false)
 
 const router = useRouter()
 
+const checkFields = () => {
+    if(!name.value || !species.value || !description.value){
+        $toast.error('Please fill in all fields', toastConfig('error'));
+        return false;
+    }
+    return true;
+}
+
 const handleSubmit = async () => {
+    if(!checkFields()) return
+    loading.value = true
     try{
         const response = await api.post('/plants/add', {
             name: name.value,
@@ -36,15 +48,21 @@ const handleSubmit = async () => {
         }
         return;
     }
+    finally{
+        loading.value = false
+    }
 }
 
 const handlePreview = () => {
-    router.push('/plant', {
-        preview: true,
-        name: name.value,
-        species: species.value,
-        description: description.value
-    })
+    if(!checkFields()) return
+    router.push({
+        name: 'Plant',
+        params: {
+            name: name.value,
+            species: species.value,
+            description: description.value
+        }
+    });
 }
 </script>
 
@@ -65,7 +83,9 @@ const handlePreview = () => {
                 <textarea type="textarea" id="description" name="description" required v-model="description">
                 </textarea>
             </div>
-
+            <div class="loading-wrapper" v-if="loading">
+                <Loading />
+            </div>
             <div class="btn-toolbar">
                 <button id="preview" type="button" @click="handlePreview">Preview</button>
                 <div class="btn-group">
@@ -114,6 +134,11 @@ const handlePreview = () => {
         height: 100px;
         resize: none;
         font-family: 'Verdana', 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+    }
+    .loading-wrapper{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
     }
     .btn-toolbar{
         display: flex;

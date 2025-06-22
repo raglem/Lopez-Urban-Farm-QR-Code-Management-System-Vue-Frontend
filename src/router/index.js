@@ -14,7 +14,7 @@ const routes = [
   { path: '/view', name: 'View', component: View, props: true },
   { path: '/add', name: 'Add', component: Add },
   { 
-    path: '/plant/:_id/:name/:species/:description', 
+    path: '/plant/:name/:species/:description', 
     name: 'Plant', 
     component: Plant, 
     props: true,
@@ -42,7 +42,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const store = useUserStore()
   const isAuthenticated = store.checkAuthentication()
-  const publicPages = ['Login', 'View', 'Plant', 'Not Found']
+  const publicPages = ['Login', 'View', 'Plant', 'FetchedPlant', 'Not Found']
   const privatePages = ['Add', 'Update']
 
   if( !isAuthenticated && privatePages.includes(to.name) ) {

@@ -6,6 +6,7 @@
     import toastConfig from '../assets/toastNotification';
 
     import api from '../api.js'
+    import Loading from '../components/Loading.vue';
     import PlantCard from '../components/PlantCard.vue';
     import { useUserStore } from '../stores/user.js';
 
@@ -13,6 +14,7 @@
     const mode = ref('name')
     const order = ref('descending')
     const editing = ref(false)
+    const loading = ref(false)
     const $toast = useToast()
     const store = useUserStore()
     const { isAuthenticated } = storeToRefs(store)
@@ -35,6 +37,7 @@
         return sorted;
     });
     const fetchPlants = async () => {
+        loading.value = true
         try{
             const response = await api.get('/plants/')
             plants.value = response.data.data
@@ -47,7 +50,13 @@
                 $toast.error('Error fetching plants', toastConfig('error'));
             }
         }
+        finally{
+            loading.value = false
+        }
     }
+    const handleDeletedPlant = (id) => {
+        plants.value = plants.value.filter(plant => plant._id !== id);
+    };
     const toggleEdit = () => {
         editing.value = !editing.value;
     };
@@ -74,9 +83,10 @@
                 <i :class="(order === 'descending') ? 'pi pi-arrow-up' : 'pi pi-arrow-down'" @click="order = (order === 'descending') ? 'ascending' : 'descending'"></i>
             </div>
         </nav>
-        <div class="grid">
+        <div class="grid" v-if="!loading">
             <PlantCard 
                 v-for="(plant, index) in sorted_plants" 
+                @delete-plant="handleDeletedPlant"
                 :key="index" 
                 :_id="plant._id"
                 :name="plant.name" 
@@ -85,6 +95,9 @@
                 :edit="editing"
             />
         </div>
+        <div class="loading-wrapper" v-else>
+            <Loading />
+        </div>
     </div>
 </template>
 
@@ -92,6 +105,7 @@
     #wrapper{
         display: flex;
         flex-direction: column;
+        height: 100%;
         padding: 20px;
         row-gap: 20px;
     }
@@ -154,5 +168,12 @@
         .grid{
             grid-template-columns: repeat(3, 1fr);
         }
+    }
+    .loading-wrapper{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 100%;
     }
 </style>

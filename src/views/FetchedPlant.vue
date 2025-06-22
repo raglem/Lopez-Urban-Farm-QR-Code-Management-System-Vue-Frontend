@@ -1,9 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import plants from '../assets/plants.json'
 import { useRoute } from 'vue-router'
+import { useToast } from 'vue-toast-notification'
+import 'vue-toast-notification/dist/theme-sugar.css';
 
 import api from '../api.js'
+import Loading from '../components/Loading.vue'
+import toastConfig from '../assets/toastNotification.js';
 
 const props = defineProps({
     _id: {
@@ -16,6 +19,7 @@ const name = ref('')
 const species = ref('')
 const description = ref('')
 const loading = ref(false)
+const $toast = useToast()
 
 onMounted(() => {
     fetchPlant()
@@ -52,12 +56,13 @@ const fetchPlant = async () => {
 
 <template>
     <div id="wrapper">
-        <article>
+        <article v-if="!loading">
             <header>
                 <h4>{{ name }} | Species: {{ species }}</h4>
             </header>
             <p> {{ description }} </p>
         </article>
+        <Loading v-else />
     </div>
 </template>
 

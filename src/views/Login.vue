@@ -38,6 +38,7 @@
             login(usernameResponse, roleResponse)
             router.push('/view')
         } catch (err) {
+            console.log(err)
             if(err?.response?.data?.message){
                 $toast.error(`Error logging in: ${err.response.data.message}`, toastConfig('error'));
             }

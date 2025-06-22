@@ -5,6 +5,7 @@
     import 'vue-toast-notification/dist/theme-sugar.css';
 
     import api from '../api.js'
+    import Loading from '../components/Loading.vue'
     import toastConfig from '../assets/toastNotification.js'
 
     const props = defineProps({
@@ -29,10 +30,21 @@
     const name = ref(props.name)
     const species = ref(props.species)
     const description = ref(props.description)
+    const loading = ref(false)
     const router = useRouter()
     const $toast = useToast()
 
+    const checkFields = () => {
+        if(!name.value || !species.value || !description.value){
+            $toast.error('Please fill in all fields', toastConfig('error'));
+            return false;
+        }
+        return true;
+    }
+
     const handleUpdate = async () => {
+        if(!checkFields()) return
+        loading.value = true
         try{
             const response = await api.patch('/plants/update', {
                 id: props._id,
@@ -60,9 +72,13 @@
             }
             return;
         }
+        finally{
+            loading.value = false
+        }
     }
 
     const handleDelete = async () => {
+        loading.value = true
         try{
             const response = await api.delete(`/plants/remove/`, {
                 data: {
@@ -84,6 +100,9 @@
             }
             return;
         }
+        finally{
+            loading.value = false
+        }
     }
 </script>
 
@@ -104,7 +123,9 @@
                 <textarea type="textarea" id="description" name="description" required v-model="description">
                 </textarea>
             </div>
-
+            <div class="loading-wrapper" v-if="loading">
+                <Loading />
+            </div>
             <div class="btn-toolbar">
                 <button id="update" type="submit" @click="handleUpdate">Update</button>
                 <div class="btn-group">
@@ -153,6 +174,11 @@
         height: 100px;
         resize: none;
         font-family: 'Verdana', 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+    }
+    .loading-wrapper{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
     }
     .btn-toolbar{
         display: flex;

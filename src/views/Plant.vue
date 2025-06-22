@@ -4,10 +4,6 @@ import plants from '../assets/plants.json'
 import { useRoute } from 'vue-router'
 
 const props = defineProps({
-    _id: {
-        type: String,
-        required: true,
-    },
     name: {
         type: String,
         required: true,

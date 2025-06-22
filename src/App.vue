@@ -12,7 +12,7 @@
       <router-view />
     </main>
     <footer>
-      <span>© Lopez Urban Farm</span>
+      <span>Lopez Urban Farm</span>
       <span class="middot">
         <i class="pi pi-circle-fill"></i>
       </span>
