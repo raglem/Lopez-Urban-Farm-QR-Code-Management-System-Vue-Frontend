@@ -1,14 +1,25 @@
 <script setup>
 import { ref } from 'vue'
+import generateQRCode from '../utils/QRCodeGenerator'
+
+const props = defineProps({
+    _id: {
+        type: String,
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
+    },
+})
+
 const hovering = ref(false)
-const handleMouseEnter = () => {
-    hovering.value = true
-}
-const handleMouseLeave = () => {
-    hovering.value = false
-}
-const handleDownload = () => {
-    console.log("Downloading...")
+const handleDownload = async () => {
+    const QRCode = await generateQRCode(props._id)
+    const link = document.createElement('a')
+    link.href = QRCode
+    link.download = `${props.name}-QRCode.png`
+    link.click()
 }
 </script>
 
@@ -48,6 +59,7 @@ const handleDownload = () => {
         top: auto;
         bottom: 100%;
         right: 0;
+        padding: 0px 5px;
         white-space: nowrap;
         border: 1px solid black;
         background: lightgray;

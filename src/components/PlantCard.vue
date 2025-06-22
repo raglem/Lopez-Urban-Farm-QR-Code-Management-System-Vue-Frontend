@@ -55,16 +55,20 @@
 <template>
     <article>
         <header>
-            <h4 @click="handlePlant">{{ name }} | Species: {{ species }}</h4>
+            <h4 @click="handlePlant">{{ props.name }} | Species: {{ props.species }}</h4>
             <i 
                 class="pi pi-pencil" 
                 v-if="edit" 
                 @click="handleUpdate"
             >
             </i>
-            <Download v-if="edit === false"/>
+            <Download 
+                :_id="props._id" 
+                :name="props.name"
+                v-if="edit === false"
+            />
         </header>
-        <p> {{ description }} </p>
+        <p> {{ props.description }} </p>
     </article>
 </template>
 

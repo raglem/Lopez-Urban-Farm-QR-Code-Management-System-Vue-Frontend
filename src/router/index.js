@@ -2,11 +2,12 @@ import { createWebHistory, createRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 
 import Add from '../views/Add.vue'
+import FetchedPlant from '../views/FetchedPlant.vue'
 import Login from '../views/Login.vue'
 import NotFound from '../views/NotFound.vue'
 import Plant from '../views/Plant.vue'
-import View from '../views/View.vue'
 import Update from '../views/Update.vue'
+import View from '../views/View.vue'
 
 const routes = [
   { path: '/login', name: 'Login', component: Login },
@@ -16,6 +17,12 @@ const routes = [
     path: '/plant/:_id/:name/:species/:description', 
     name: 'Plant', 
     component: Plant, 
+    props: true,
+  },
+  { 
+    path: '/plant/:_id', 
+    name: 'FetchedPlant', 
+    component: FetchedPlant, 
     props: true,
   },
   { 
