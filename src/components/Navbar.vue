@@ -23,8 +23,12 @@
             router.push('/add')
         }
     }
+    const handleAccount = () => {
+        if(isAuthenticated){
+            router.push('/account')
+        }
+    }
     const handleLogout = () => {
-        localStorage.clear()
         logout()
         router.push('/login')
 
@@ -42,6 +46,9 @@
             </button>
             <button class="inactive" v-if="isAuthenticated" @click="handleAdd">
                 Add
+            </button>
+            <button class="inactive" v-if="isAuthenticated" @click="handleAccount">
+                Account
             </button>
             <button class="inactive" v-if="isAuthenticated" @click="handleLogout">
                 Logout
