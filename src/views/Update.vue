@@ -1,5 +1,5 @@
 <script setup>
-    import { ref } from 'vue'
+    import { ref, onUnmounted } from 'vue'
     import { useRouter } from 'vue-router';
     import { useToast } from 'vue-toast-notification'
     import 'vue-toast-notification/dist/theme-sugar.css';
@@ -24,33 +24,105 @@
         description: {
             type: String,
             required: true,
+        },
+        image: {
+            type: String,
+            required: false,
         }
     })
 
     const name = ref(props.name)
     const species = ref(props.species)
     const description = ref(props.description)
+    
+    // For image upload and preview
+    const imageSrc = ref(props.image || null)
+    let imageFile = null
+    let previousImageURL = null
+    let changedImage = false
+
     const loading = ref(false)
     const router = useRouter()
     const $toast = useToast()
 
+    onUnmounted(() => {
+        // Clean up the previous image URL when component is unmounted
+        if(previousImageURL){
+            URL.revokeObjectURL(previousImageURL)
+        }
+    })
+
     const checkFields = () => {
         if(!name.value || !species.value || !description.value){
-            $toast.error('Please fill in all fields', toastConfig('error'));
+            $toast.error('Please fill in all required fields', toastConfig('error'));
             return false;
         }
         return true;
     }
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0]
+
+        // Check file upload is valid
+        if(!file){
+            return
+        }
+        if(!file.type.startsWith('image/')){
+            $toast.error('Please select a valid image file', toastConfig('error'));
+            return
+        }
+        if(file.size > 5 * 1024 * 1024){ // 5MB limit
+            $toast.error('Image size exceeds 5MB', toastConfig('error'));
+            return
+        }
+
+        // If the image has changed, set changedImage to true
+        changedImage = true
+
+        // Revoke the previousImage URL if it exists
+        if(previousImageURL){
+            URL.revokeObjectURL(previousImageURL)
+        }
+
+        // Create a URL for the image
+        const src = URL.createObjectURL(file);
+        imageSrc.value = src
+        previousImageURL = src
+
+        // Store the file for image upload
+        imageFile = file
+    }
+    const handleImageRemove = () => {
+        imageSrc.value = null
+        imageFile = null
+        changedImage = true
+    }
+
     const handleUpdate = async () => {
         if(!checkFields()) return
         loading.value = true
+        const fd = new FormData()
+        fd.append('id', props._id)
+        // For text fields, only append if they have changed
+        if(name.value !== props.name){
+            fd.append('name', name.value)
+        }
+        if(species.value !== props.species){
+            fd.append('species', species.value)
+        }
+        if(description.value !== props.description){
+            fd.append('description', description.value)
+        }
+        // For image, append if it has changed or append the key 'deleteImage' if the image is removed
+        if(changedImage){
+            imageFile ? fd.append('image', imageFile) : 
+                fd.append('deleteImage', 'true')
+        }
         try{
-            const response = await api.patch('/plants/update', {
-                id: props._id,
-                name: name.value,
-                species: species.value,
-                description: description.value
+            const response = await api.patch('/plants/update', fd, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
             })
             router.push({
                 name: 'View',
@@ -123,6 +195,23 @@
                 <textarea type="textarea" id="description" name="description" required v-model="description">
                 </textarea>
             </div>
+            <div>
+                <label for="image">Image: <i> Optional </i></label>
+                <div class="image-wrapper">
+                    <div v-if="imageSrc" class="image-preview">
+                        <img :src="imageSrc" alt="Image Preview" />
+                    </div>
+                    <div class="image-toolbar">
+                        <label class="image-icon" for="image">
+                            <i class="pi pi-upload"></i>
+                            <input type="file" id="image" accept="image/*" @change="handleImageChange"/>
+                        </label>
+                        <label class="image-icon" v-if="imageSrc">
+                            <i class="pi pi-times-circle" @click="handleImageRemove"></i>
+                        </label>
+                    </div>
+                </div>
+            </div>
             <div class="loading-wrapper" v-if="loading">
                 <Loading />
             </div>
@@ -170,10 +259,59 @@
     }
     form div textarea{
         width: 99%;
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         height: 100px;
         resize: none;
         font-family: 'Verdana', 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+    }
+    .image-wrapper{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-sizing: border-box;
+        padding: 20px 0px;
+        width: 100%;
+        row-gap: 20px;
+        aspect-ratio: 4/1;
+        border: 1px solid black;
+        font-size: 2rem;
+    }
+    .image-wrapper i{
+        color: var(--primary);
+    }
+    .image-preview{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0px 20px;
+    }
+    .image-preview img{
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    .image-toolbar{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        column-gap: 20px;
+    }
+    .image-icon{
+        position: relative;
+        cursor: pointer;
+    }
+    .image-icon input[type="file"]{
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        /* Allow cursor of the parent icon to be pointer */
+        z-index: -1;
     }
     .loading-wrapper{
         display: flex;

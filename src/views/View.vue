@@ -92,6 +92,7 @@
                 :name="plant.name" 
                 :species="plant.species" 
                 :description="plant.description"
+                :image="plant?.image?.url"
                 :edit="editing"
             />
         </div>

@@ -25,7 +25,7 @@ const publicRoutes = [
 const privateRoutes = [
   { path: '/add', name: 'Add', component: Add },
   { 
-    path: '/plant/:name/:species/:description', 
+    path: '/plant/:name/:species/:description/:image?', 
     name: 'Plant', 
     component: Plant, 
     props: true,
@@ -36,11 +36,18 @@ const privateRoutes = [
     component: FetchedPlant, 
     props: true,
   },
+  { 
+    path: '/update/:_id/:name/:species/:description/:image?', 
+    name: 'Update', 
+    component: Update, 
+    props: true 
+  },
   {
     path: '/account',
     name: 'Account',
     component: Account
-  }
+  },
+  { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
 ]
 
 const routes = [
