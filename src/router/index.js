@@ -1,6 +1,7 @@
 import { createWebHistory, createRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 
+import Account from '../views/Account.vue'
 import Add from '../views/Add.vue'
 import FetchedPlant from '../views/FetchedPlant.vue'
 import Login from '../views/Login.vue'
@@ -9,9 +10,19 @@ import Plant from '../views/Plant.vue'
 import Update from '../views/Update.vue'
 import View from '../views/View.vue'
 
-const routes = [
+const publicRoutes = [
   { path: '/login', name: 'Login', component: Login },
   { path: '/view', name: 'View', component: View, props: true },
+  { 
+    path: '/update/:_id/:name/:species/:description', 
+    name: 'Update', 
+    component: Update, 
+    props: true 
+  },
+  { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
+]
+
+const privateRoutes = [
   { path: '/add', name: 'Add', component: Add },
   { 
     path: '/plant/:name/:species/:description', 
@@ -25,13 +36,16 @@ const routes = [
     component: FetchedPlant, 
     props: true,
   },
-  { 
-    path: '/update/:_id/:name/:species/:description', 
-    name: 'Update', 
-    component: Update, 
-    props: true 
-  },
-  { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
+  {
+    path: '/account',
+    name: 'Account',
+    component: Account
+  }
+]
+
+const routes = [
+  ...publicRoutes,
+  ...privateRoutes,
 ]
 
 const router = createRouter({
@@ -42,10 +56,8 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const store = useUserStore()
   const isAuthenticated = store.checkAuthentication()
-  const publicPages = ['Login', 'View', 'Plant', 'FetchedPlant', 'Not Found']
-  const privatePages = ['Add', 'Update']
 
-  if( !isAuthenticated && privatePages.includes(to.name) ) {
+  if( !isAuthenticated && privateRoutes.some(route => route.name === to.name) ) {
     return next('/login')
   }
   next()

@@ -3,23 +3,31 @@ import { defineStore } from 'pinia'
 import { jwtDecode } from 'jwt-decode'
 
 export const useUserStore = defineStore('user', () => {
+    const _id = ref('')
+    const username = ref('')
+    const role = ref('')
+    const isAuthenticated = ref(false)
+
     onMounted(() => {
         checkAuthentication()
     })
-    const user = ref({
-        username: '',
-        role: ''
-    })
-    const isAuthenticated = ref(false)
-    function login(username, role){
-        user.value.username = username
-        user.value.role = role
+
+    function login(_idParam, usernameParam, roleParam){
+        _id.value = _idParam
+        username.value = usernameParam
+        role.value = roleParam
         isAuthenticated.value = true
+        
+        localStorage.setItem('_ID', _idParam)
+        localStorage.setItem('USERNAME', usernameParam)
+        localStorage.setItem('ROLE', roleParam)
     }
     function logout(){
-        user.value.username = ''
-        user.value.role = ''
+        username.value = ''
+        role.value = ''
         isAuthenticated.value = false
+
+        localStorage.clear()
     }
     function checkAuthentication(){
         const token = localStorage.getItem('ACCESS_TOKEN')
@@ -28,15 +36,22 @@ export const useUserStore = defineStore('user', () => {
             return false
         }
     
-        const expTime = jwtDecode(token)?.exp
-        const isExpired = expTime * 1000 <= Date.now()
-        if(isExpired){
+        // Check if token is invalid or expired
+        try{
+            const expTime = jwtDecode(token)?.exp
+            const isExpired = expTime * 1000 <= Date.now()
+            if(isExpired){
+                logout()
+                return false
+            }
+        }
+        catch(err){
             logout()
             return false
         }
 
-        login(localStorage.getItem('USERNAME'), localStorage.getItem('ROLE'))
+        login(localStorage.getItem('_ID'), localStorage.getItem('USERNAME'), localStorage.getItem('ROLE'))
         return true
     }
-    return { user, isAuthenticated, login, logout, checkAuthentication }
+    return { _id, username, role, isAuthenticated, login, logout, checkAuthentication }
 })

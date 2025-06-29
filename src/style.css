@@ -15,7 +15,9 @@
   -moz-osx-font-smoothing: grayscale;
 
   --primary-gradient: linear-gradient(90deg,rgba(42, 155, 63, 1) 0%, rgba(149, 199, 87, 1) 50%);
+  --primary-gradient-dark: linear-gradient(90deg,rgba(42, 155, 63, 1) 0%, rgb(123, 177, 56) 50%);
   --primary: rgba(42, 155, 63, 1);
+  --primary-light: rgb(30, 180, 58);
 }
 
 
@@ -39,9 +41,6 @@ button{
 }
 button:hover {
   cursor: pointer;
-}
-.card {
-  padding: 2em;
 }
 
 @media (prefers-color-scheme: light) {

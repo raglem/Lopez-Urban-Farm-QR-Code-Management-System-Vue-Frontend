@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, inject } from 'vue'
+    import { ref, inject, onMounted } from 'vue'
     import { useRouter } from 'vue-router'
     import { useToast } from 'vue-toast-notification'
     import 'vue-toast-notification/dist/theme-sugar.css';
@@ -31,11 +31,12 @@
                 username: username.value,
                 password: password.value
             })
-            const { token, usernameResponse, roleResponse } = response.data
+
+            const token = response.data.token
+            const { _id: _idResponse, username: usernameResponse, role: roleResponse } = response.data.user
+            login(_idResponse, usernameResponse, roleResponse)
+            console.log(_idResponse)
             localStorage.setItem('ACCESS_TOKEN', token)
-            localStorage.setItem('USERNAME', usernameResponse)
-            localStorage.setItem('ROLE', roleResponse)
-            login(usernameResponse, roleResponse)
             router.push('/view')
         } catch (err) {
             console.log(err)
@@ -99,6 +100,7 @@
         box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
     h1{
+        font-weight: normal;
         font-size: 2.5rem;
         margin: 0;
     }
