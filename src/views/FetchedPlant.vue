@@ -18,6 +18,7 @@ const props = defineProps({
 const name = ref('')
 const species = ref('')
 const description = ref('')
+const image = ref(null)
 const loading = ref(false)
 const $toast = useToast()
 
@@ -34,6 +35,7 @@ const fetchPlant = async () => {
         name.value = data.name
         species.value = data.species
         description.value = data.description
+        image.value = data?.image?.url || null
     }
     catch(err){
         console.log(err)
@@ -60,7 +62,10 @@ const fetchPlant = async () => {
             <header>
                 <h4>{{ name }} | Species: {{ species }}</h4>
             </header>
-            <p> {{ description }} </p>
+            <p> 
+                <img v-if="image" :src="image">
+                {{ description }} 
+            </p>
         </article>
         <Loading v-else />
     </div>
@@ -88,12 +93,30 @@ const fetchPlant = async () => {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        padding-left: 5px;
+        padding: 0px 10px;
         height: 30%;
         border-bottom: 1px solid black;
     }
     p{
-        padding: 0px 5px;
+        display: flex;
+        flex-direction: row;
+        column-gap: 10px;
+        row-gap: 10px;
+        padding: 0px 10px;
         text-align: left;
+    }
+    p > img{
+        float: left;
+        width: 30%;
+        border-radius: 5px;
+        object-fit: cover;
+    }
+    @media (max-width: 600px) {
+        p{
+            flex-direction: column;
+        }
+        p > img{
+            width: 100%;
+        }
     }
 </style>

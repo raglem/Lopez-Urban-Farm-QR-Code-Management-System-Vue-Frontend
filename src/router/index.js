@@ -14,7 +14,7 @@ const routes = [
   { path: '/view', name: 'View', component: View, props: true },
   { path: '/add', name: 'Add', component: Add },
   { 
-    path: '/plant/:name/:species/:description', 
+    path: '/plant/:name/:species/:description/:image?', 
     name: 'Plant', 
     component: Plant, 
     props: true,
@@ -26,7 +26,7 @@ const routes = [
     props: true,
   },
   { 
-    path: '/update/:_id/:name/:species/:description', 
+    path: '/update/:_id/:name/:species/:description/:image?', 
     name: 'Update', 
     component: Update, 
     props: true 

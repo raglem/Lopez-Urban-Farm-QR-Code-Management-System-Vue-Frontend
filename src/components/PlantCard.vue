@@ -26,6 +26,10 @@
             type: String,
             required: true
         },
+        image: {
+            type: String,
+            required: false,
+        },
         edit: {
             type: Boolean,
             required: true
@@ -42,7 +46,8 @@
             params: {
                 name: props.name,
                 species: props.species,
-                description: props.description
+                description: props.description,
+                image: props.image,
             }
         });
     }
@@ -53,7 +58,8 @@
                 _id: props._id,
                 name: props.name,
                 species: props.species,
-                description: props.description
+                description: props.description,
+                image: props.image
             }
         });
     }
@@ -110,7 +116,14 @@
                 v-if="edit === false"
             />
         </header>
-        <p> {{ props.description }} </p>
+        <p> 
+            <img 
+                :src="props.image"
+                alt="Plant Image" 
+                v-if="props.image"
+            /> 
+            {{ props.description }} 
+        </p>
     </article>
 </template>
 
@@ -145,8 +158,26 @@
         cursor: pointer;
     }
     p{
-        padding: 0px 5px;
+        display: flex;
+        flex-direction: row;
+        column-gap: 10px;
+        row-gap: 10px;
+        padding: 0px 10px;
         text-align: left;
+    }
+    p > img{
+        float: left;
+        width: 30%;
+        border-radius: 5px;
+        object-fit: cover;
+    }
+    @media (max-width: 600px) {
+        p{
+            flex-direction: column;
+        }
+        p > img{
+            width: 100%;
+        }
     }
     h4:hover{
         cursor: pointer;
