@@ -100,7 +100,6 @@ const handleSubmit = async () => {
         else{
             $toast.error('Error adding plant', toastConfig('error'));
         }
-        return;
     }
     finally{
         loading.value = false

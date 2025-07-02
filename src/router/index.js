@@ -9,6 +9,7 @@ import NotFound from '../views/NotFound.vue'
 import Plant from '../views/Plant.vue'
 import Update from '../views/Update.vue'
 import View from '../views/View.vue'
+import Quiz from '../views/Quiz.vue'
 
 const publicRoutes = [
   { path: '/login', name: 'Login', component: Login },
@@ -18,6 +19,11 @@ const publicRoutes = [
     name: 'Update', 
     component: Update, 
     props: true 
+  },
+  {
+    path: '/quiz',
+    name: 'Quiz',
+    component: Quiz
   },
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
 ]

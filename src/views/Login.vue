@@ -25,7 +25,10 @@
 
     const handleLogin = async () => {
         loading.value = true
-        localStorage.clear()
+        localStorage.removeItem('ACCESS_TOKEN')
+        localStorage.removeItem('_ID')
+        localStorage.removeItem('USERNAME')
+        localStorage.removeItem('ROLE')
         try {
             const response = await api.post('/users/login/', {
                 username: username.value,
