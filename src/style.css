@@ -42,6 +42,10 @@ button{
 button:hover {
   cursor: pointer;
 }
+h1, h2, h3 {
+  font-weight: normal;
+  margin: 0;
+}
 
 @media (prefers-color-scheme: light) {
   :root {
