@@ -136,11 +136,14 @@
         grid-template-columns: repeat(1, 1fr);
         gap: 20px;
     }
-
+    .switch{
+        display: flex;
+    }
     #edit-btn, .switch button{
-        text-align: center;
-        width: 75px;
-        font-size: 1rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2px 10px;
         border: 1px solid black;
     }
     #edit-btn div{

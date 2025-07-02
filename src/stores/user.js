@@ -26,8 +26,11 @@ export const useUserStore = defineStore('user', () => {
         username.value = ''
         role.value = ''
         isAuthenticated.value = false
-
-        localStorage.clear()
+        
+        localStorage.removeItem('ACCESS_TOKEN')
+        localStorage.removeItem('_ID')
+        localStorage.removeItem('USERNAME')
+        localStorage.removeItem('ROLE')
     }
     function checkAuthentication(){
         const token = localStorage.getItem('ACCESS_TOKEN')
