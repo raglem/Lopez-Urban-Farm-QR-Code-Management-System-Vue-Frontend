@@ -24,17 +24,21 @@
     })
 
     const sorted_plants = computed(() => {
-        const sorted = [...plants.value];
+        const visiblePlants = plants.value.filter(p => p.visibility !== false);
+        const invisiblePlants = plants.value.filter(p => p.visibility === false);
+
         if (mode.value === 'name') {
-            sorted.sort((a, b) => a.name.localeCompare(b.name));
-        }
-        else{
-            sorted.sort((a, b) => a.species.localeCompare(b.species))
+            visiblePlants.sort((a, b) => a.name.localeCompare(b.name));
+            invisiblePlants.sort((a, b) => a.name.localeCompare(b.name));
+        } else {
+            visiblePlants.sort((a, b) => a.species.localeCompare(b.species));
+            invisiblePlants.sort((a, b) => a.species.localeCompare(b.species));
         }
         if (order.value === 'ascending') {
-            sorted.reverse();
+            visiblePlants.reverse();
+            invisiblePlants.reverse();
         }
-        return sorted;
+        return [...visiblePlants, ...invisiblePlants];
     });
     const fetchPlants = async () => {
         loading.value = true
@@ -57,6 +61,20 @@
     const handleDeletedPlant = (id) => {
         plants.value = plants.value.filter(plant => plant._id !== id);
     };
+    const handleToggledVisibility = (id, visibility) => {
+        const toggledPlantIndex = plants.value.findIndex(plant => plant._id === id)
+        if (toggledPlantIndex !== -1) {
+            // Create a shallow copy of the array to trigger reactivity
+            const updatedPlants = [...plants.value]
+
+            updatedPlants[toggledPlantIndex] = {
+                ...updatedPlants[toggledPlantIndex],
+                visibility: visibility,
+            }
+            plants.value = updatedPlants
+        }
+        
+    }
     const toggleEdit = () => {
         editing.value = !editing.value;
     };
@@ -85,13 +103,15 @@
         </nav>
         <div class="grid" v-if="!loading">
             <PlantCard 
-                v-for="(plant, index) in sorted_plants" 
+                v-for="plant in sorted_plants" 
                 @delete-plant="handleDeletedPlant"
-                :key="index" 
+                @toggle-visibility="handleToggledVisibility"
+                :key="plant._id" 
                 :_id="plant._id"
                 :name="plant.name" 
                 :species="plant.species" 
                 :description="plant.description"
+                :visibility="plant.visibility"
                 :image="plant?.image?.url"
                 :edit="editing"
             />

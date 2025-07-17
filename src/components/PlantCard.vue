@@ -26,6 +26,10 @@
             type: String,
             required: true
         },
+        visibility: {
+            type: Boolean,
+            required: true
+        },
         image: {
             type: String,
             required: false,
@@ -35,8 +39,9 @@
             required: true
         }
     })
-    const emit = defineEmits(['delete-plant'])
+    const emit = defineEmits(['delete-plant', 'toggle-visibility'])
 
+    const visibility = ref(props.visibility)
     const loading = ref(false)
     const $toast = useToast()
 
@@ -59,6 +64,7 @@
                 name: props.name,
                 species: props.species,
                 description: props.description,
+                visibility: visibility.value,
                 image: props.image
             }
         });
@@ -91,12 +97,56 @@
             loading.value = false
         }
     }
+    const handleToggleVisibility = async () => {
+        const fd = new FormData()
+        fd.append('id', props._id)
+        fd.append('visibility', !props.visibility)
+        try{
+            const res = await api.patch(`/plants/update/`, fd, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+            $toast.success(`Visibility for ${props.name} set to ${!visibility.value ? 'public': 'private'}`, toastConfig('success'))
+        }
+        catch(err){
+            console.log(err);
+            if (err?.response?.data?.message) {
+                $toast.error(`Error toggling visibility: ${err.response.data.message}`, toastConfig('error'));
+            } else if (err.message) {
+                $toast.error(`Error toggling visibility: ${err.message}`, toastConfig('error'));
+            } else {
+                $toast.error('Error toggling visibility', toastConfig('error'));
+            }
+        }
+
+        // Update state in parent and child
+        emit('toggle-visibility', props._id, !visibility.value)
+        visibility.value = !visibility.value
+    }
 </script>
 
 <template>
-    <article>
+    <article :class="visibility ? null : 'invisible'">
         <header>
-            <h4 @click="handlePlant">{{ props.name }} | Species: {{ props.species }}</h4>
+            <div class="btn-toolbar">
+                <i
+                    class="pi pi-eye"
+                    v-if="edit && visibility"
+                    @click="handleToggleVisibility"
+                ></i>
+                <i
+                    class="pi pi-eye-slash"
+                    v-if="edit && !visibility"
+                    @click="handleToggleVisibility"
+                ></i>
+                <i
+                    class="pi pi-eye-slash"
+                    :class="'default'"
+                    v-if="!edit && !visibility"
+                ></i>
+                <h4 @click="handlePlant">{{ props.name }} | Species: {{ props.species }}</h4>
+            </div>
             <span class="btn-toolbar" v-if="edit">
                 <i 
                     class="pi pi-pencil" 
@@ -135,18 +185,24 @@
         border: 1px solid black;
         box-shadow: 0px 0px 5px black;
     }
+    article.invisible{
+        background-color: lightgray;
+    }
     header{
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
+        column-gap: 5px;
         padding: 0px 10px;
         height: 30%;
         border-bottom: 1px solid black;
     }
     header > .btn-toolbar{
         display: flex;
-        column-gap: 5px;
+        flex-direction: row;
+        align-items: center;
+        column-gap: 8px;
     }
     header i{
         color: var(--primary);
@@ -156,6 +212,14 @@
     }
     header i:hover{
         cursor: pointer;
+        opacity: 80%;
+    }
+    i.pi-eye-slash{
+        color: gray;
+    }
+    i.default:hover{
+        cursor: default;
+        opacity: 100%;
     }
     p{
         display: flex;

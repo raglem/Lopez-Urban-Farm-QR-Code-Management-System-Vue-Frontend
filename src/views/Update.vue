@@ -25,6 +25,10 @@
             type: String,
             required: true,
         },
+        visibility: {
+            type: String,
+            required: true
+        },
         image: {
             type: String,
             required: false,
@@ -34,6 +38,7 @@
     const name = ref(props.name)
     const species = ref(props.species)
     const description = ref(props.description)
+    const visibility = ref(props.visibility === 'true' ? 'Public' : 'Private')
     
     // For image upload and preview
     const imageSrc = ref(props.image || null)
@@ -112,6 +117,9 @@
         }
         if(description.value !== props.description){
             fd.append('description', description.value)
+        }
+        if(visibility.value !== props.visibility){
+            fd.append('visibility', visibility.value === 'Public' ? true : false)
         }
         // For image, append if it has changed or append the key 'deleteImage' if the image is removed
         if(changedImage){
@@ -196,6 +204,13 @@
                 </textarea>
             </div>
             <div>
+                <label for="description">Visibility</label>
+                <select id="description" name="description" required v-model="visibility">
+                    <option>Public</option>
+                    <option>Private</option>
+                </select>
+            </div>
+            <div>
                 <label for="image">Image: <i> Optional </i></label>
                 <div class="image-wrapper">
                     <div v-if="imageSrc" class="image-preview">
@@ -248,17 +263,15 @@
     form div{
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
     }
     form div label{
         font-size: 1.5rem;
     }
-    form div input{
-        width: 99%;
+    form div input, form div select{
         font-size: 1.5rem;
     }
     form div textarea{
-        width: 99%;
         font-size: 1.2rem;
         height: 100px;
         resize: none;

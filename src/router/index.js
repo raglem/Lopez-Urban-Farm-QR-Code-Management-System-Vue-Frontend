@@ -43,7 +43,7 @@ const privateRoutes = [
     props: true,
   },
   { 
-    path: '/update/:_id/:name/:species/:description/:image?', 
+    path: '/update/:_id/:name/:species/:description/:visibility/:image?', 
     name: 'Update', 
     component: Update, 
     props: true 
