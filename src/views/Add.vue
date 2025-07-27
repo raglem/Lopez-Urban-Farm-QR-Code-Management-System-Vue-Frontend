@@ -11,6 +11,7 @@ import Loading from '../components/Loading.vue'
 const name = ref('')
 const species = ref('')
 const description = ref('')
+const visibility = ref('Public')
 // For image preview and cleanup
 const imageSrc = ref(null)
 let previousImageURL = null
@@ -79,6 +80,7 @@ const handleSubmit = async () => {
         fd.append('name', name.value)
         fd.append('species', species.value)
         fd.append('description', description.value)
+        fd.append('visibility', visibility.value === 'Public' ? true : false)
         if(imageFile){
             fd.append('image', imageFile)
         }
@@ -165,6 +167,13 @@ const handlePreview = () => {
                 </textarea>
             </div>
             <div>
+                <label for="description">Visibility</label>
+                <select id="description" name="description" required v-model="visibility">
+                    <option>Public</option>
+                    <option>Private</option>
+                </select>
+            </div>
+            <div>
                 <label for="image">Image: <i> Optional </i></label>
                 <div class="image-wrapper">
                     <div v-if="imageSrc" class="image-preview">
@@ -208,6 +217,7 @@ const handlePreview = () => {
         display: flex;
         flex-direction: column;
         align-items: stretch;
+        box-sizing: border-box;
         padding: 20px;
         box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
         row-gap: 20px;
@@ -217,17 +227,15 @@ const handlePreview = () => {
     form div{
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
     }
     form div label{
         font-size: 1.5rem;
     }
-    form div input{
-        width: 99%;
+    form div input, form div select{
         font-size: 1.5rem;
     }
     form div textarea{
-        width: 99%;
         font-size: 1.2rem;
         height: 100px;
         resize: none;
