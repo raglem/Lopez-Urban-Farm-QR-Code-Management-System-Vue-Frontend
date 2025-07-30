@@ -14,12 +14,6 @@ import Quiz from '../views/Quiz.vue'
 const publicRoutes = [
   { path: '/login', name: 'Login', component: Login },
   { path: '/view', name: 'View', component: View, props: true },
-  { 
-    path: '/update/:_id/:name/:species/:description', 
-    name: 'Update', 
-    component: Update, 
-    props: true 
-  },
   {
     path: '/quiz',
     name: 'Quiz',
@@ -43,7 +37,7 @@ const privateRoutes = [
     props: true,
   },
   { 
-    path: '/update/:_id/:name/:species/:description/:visibility/:image?', 
+    path: '/update/:_id', 
     name: 'Update', 
     component: Update, 
     props: true 

@@ -7,10 +7,12 @@ import toastConfig from '../assets/toastNotification.js'
 
 import api from '../api.js'
 import Loading from '../components/Loading.vue'
+import GardenDropdown from '../components/Garden/GardenDropdown.vue';
 
 const name = ref('')
 const species = ref('')
 const description = ref('')
+const garden = ref(null)
 const visibility = ref('Public')
 // For image preview and cleanup
 const imageSrc = ref(null)
@@ -32,7 +34,7 @@ onUnmounted(() => {
 })
 
 const checkFields = () => {
-    if(!name.value || !species.value || !description.value){
+    if(!name.value || !species.value || !description.value || !garden.value || !visibility.value){
         $toast.error('Please fill in all required fields', toastConfig('error'));
         return false;
     }
@@ -80,6 +82,7 @@ const handleSubmit = async () => {
         fd.append('name', name.value)
         fd.append('species', species.value)
         fd.append('description', description.value)
+        fd.append('gardenId', garden.value._id)
         fd.append('visibility', visibility.value === 'Public' ? true : false)
         if(imageFile){
             fd.append('image', imageFile)
@@ -105,34 +108,6 @@ const handleSubmit = async () => {
     }
     finally{
         loading.value = false
-    }
-}
-
-const handleImageUpload = async () => {
-    const fd = new FormData()
-    fd.append('name', name.value)
-    fd.append('species', species.value)
-    fd.append('description', description.value)
-    fd.append('image', imageFile)
-
-    try{
-        const response = await api.post('/plants/add', fd, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        })
-        $toast.success(`${name.value} was successfully added`, toastConfig('success'));
-        router.push('/view')
-    } catch (err) {
-        if(err.response.data.message){
-            $toast.error(`Error adding plant: ${err.response.data.message}`, toastConfig('error'));
-        }
-        else if(err.message){
-            $toast.error(`Error adding plant: ${err.message}`, toastConfig('error'));
-        }
-        else{
-            $toast.error('Error adding plant', toastConfig('error'));
-        }
     }
 }
 
@@ -167,8 +142,12 @@ const handlePreview = () => {
                 </textarea>
             </div>
             <div>
-                <label for="description">Visibility</label>
-                <select id="description" name="description" required v-model="visibility">
+                <label for="garden">Garden: <i> Optional </i></label>
+                <GardenDropdown v-model="garden"/>
+            </div>
+            <div>
+                <label for="visibility">Visibility</label>
+                <select id="visibility" name="visibility" required v-model="visibility">
                     <option>Public</option>
                     <option>Private</option>
                 </select>
@@ -223,6 +202,8 @@ const handlePreview = () => {
         row-gap: 20px;
         width: 80vw;
         max-width: 600px;
+        margin: 40px 0px;
+        overflow-y: auto;
     }
     form div{
         display: flex;

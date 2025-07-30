@@ -23,23 +23,43 @@
         fetchPlants()
     })
 
-    const sorted_plants = computed(() => {
+    const name_sorted_plants = computed(() => {
         const visiblePlants = plants.value.filter(p => p.visibility !== false);
         const invisiblePlants = plants.value.filter(p => p.visibility === false);
 
-        if (mode.value === 'name') {
-            visiblePlants.sort((a, b) => a.name.localeCompare(b.name));
-            invisiblePlants.sort((a, b) => a.name.localeCompare(b.name));
-        } else {
-            visiblePlants.sort((a, b) => a.species.localeCompare(b.species));
-            invisiblePlants.sort((a, b) => a.species.localeCompare(b.species));
-        }
-        if (order.value === 'ascending') {
+        visiblePlants.sort((a, b) => a.name.localeCompare(b.name));
+        invisiblePlants.sort((a, b) => a.name.localeCompare(b.name));
+
+        if(order.value === 'ascending') {
             visiblePlants.reverse();
             invisiblePlants.reverse();
         }
         return [...visiblePlants, ...invisiblePlants];
     });
+
+    const garden_categorized_plants = computed(() => {
+        const gardens = [...new Set(plants.value.map(p => p.garden ? {
+            id: p.garden._id,
+            name: p.garden.name,
+            plants: []
+        } : {
+            id: null,
+            name: null,
+            plants: []
+        }))];
+        order === 'descending' ? gardens.sort((a, b) => a.name.localeCompare(b.name)) : gardens.sort((a, b) => b.name.localeCompare(a.name))
+        plants.value.forEach((p) => {
+            if (!p.garden) {
+                const lastGarden = gardens[gardens.length - 1]
+                lastGarden.plants.push(p)
+            }
+            else{
+                const gardenIndex = gardens.findIndex(g => g.id === p.garden._id);
+                gardens[gardenIndex].plants.push(p);
+            }
+        })
+    })
+
     const fetchPlants = async () => {
         loading.value = true
         try{
@@ -96,14 +116,14 @@
             <div>
                 <label class="switch">
                     <button id="name" :class="(mode === 'name') ? 'active' : 'inactive'" @click="mode = 'name'">Name</button>
-                    <button id="species" :class="(mode === 'species') ? 'active' : 'inactive'" @click="mode = 'species'">Species</button>
+                    <button id="species" :class="(mode === 'garden') ? 'active' : 'inactive'" @click="mode = 'garden'">Garden</button>
                 </label>
                 <i :class="(order === 'descending') ? 'pi pi-arrow-up' : 'pi pi-arrow-down'" @click="order = (order === 'descending') ? 'ascending' : 'descending'"></i>
             </div>
         </nav>
-        <div class="grid" v-if="!loading">
+        <div class="grid" v-if="!loading && mode==='name'">
             <PlantCard 
-                v-for="plant in sorted_plants" 
+                v-for="plant in name_sorted_plants" 
                 @delete-plant="handleDeletedPlant"
                 @toggle-visibility="handleToggledVisibility"
                 :key="plant._id" 
@@ -111,12 +131,29 @@
                 :name="plant.name" 
                 :species="plant.species" 
                 :description="plant.description"
+                :garden="plant.garden"
                 :visibility="plant.visibility"
                 :image="plant?.image?.url"
                 :edit="editing"
             />
         </div>
-        <div class="loading-wrapper" v-else>
+        <div class="grid" v-if="!loading && mode==='garden'">
+            <PlantCard 
+                v-for="plant in name_sorted_plants" 
+                @delete-plant="handleDeletedPlant"
+                @toggle-visibility="handleToggledVisibility"
+                :key="plant._id" 
+                :_id="plant._id"
+                :name="plant.name" 
+                :species="plant.species" 
+                :description="plant.description"
+                :garden="plant.garden"
+                :visibility="plant.visibility"
+                :image="plant?.image?.url"
+                :edit="editing"
+            />
+        </div>
+        <div class="loading-wrapper" v-if="loading">
             <Loading />
         </div>
     </div>
