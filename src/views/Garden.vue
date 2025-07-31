@@ -17,6 +17,7 @@
     })
 
     const name = ref('')
+    const description = ref('')
     const images = ref([])
     const imageURLs = computed(() => {
         return images.value.map(image => image.url)
@@ -32,16 +33,9 @@
                 const response = await api.get(`/gardens/${props._id}`);
                 const garden = response.data.data
                 name.value = garden.name;
+                description.value = garden.description
                 images.value = garden.images || [];
                 plants.value = garden.plants || []
-                console.log(response.data)
-
-                // Uncomment later
-                // images.value = [
-                //     'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQO1WgOdKAszoDdC0YNnWNCbSc_agplgwrCLXzYNwSIqiWYyBUSxjoj0JJEVxxRa8z4mFY9UjtUMpepzUQSwJVvlnxjeqcsfDI9O_grj7fnPQ', 
-                //     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlOYId9yAzW4d7oOb1__QztJahf8hZ_d6naMsnqeBXGry2n-dRxc-X_zhiodnnXxccOs0oXWVBDne7touXKfGOXV-HbH2cZ3TgRfb-fWeQ', 
-                //     'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQO1WgOdKAszoDdC0YNnWNCbSc_agplgwrCLXzYNwSIqiWYyBUSxjoj0JJEVxxRa8z4mFY9UjtUMpepzUQSwJVvlnxjeqcsfDI9O_grj7fnPQ'
-                // ]
             } catch (err) {
                 console.error(err)
                 if(err?.response?.data?.message){
@@ -70,6 +64,7 @@
             <header>
                 <h1>{{ name }}</h1>
             </header>
+            <p>{{ description }}</p>
             <div class="image-carousel-wrapper">
                 <ImageCarousel v-if="images.length > 0" :images="imageURLs" />
             </div>

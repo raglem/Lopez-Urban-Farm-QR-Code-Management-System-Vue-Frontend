@@ -7,29 +7,52 @@
     import 'vue-toast-notification/dist/theme-sugar.css';
     import toastConfig from '../../assets/toastNotification';
 
-    const gardenName = ref('')
-    const description = ref('')
+    const props = defineProps({
+        _id: {
+            type: String,
+            required: true
+        },
+        name: {
+            type: String,
+            required: true,
+        },
+        description: {
+            type: String,
+            required: true
+        }
+    })
+    const emit = defineEmits(['cancel', 'update']);
+
+    const editedName = ref(props.name)
+    const editedDescription = ref(props.description)
     const loading = ref(false)
     const $toast = useToast();
 
-    const emit = defineEmits(['close', 'gardenAdded']);
-
-    const handleCreateGarden = async () => {
-        if (!gardenName.value || !description.value) {
-            $toast.error('Please fill in all fields', toastConfig('error'));
+    const handleUpdateGarden = async () => {
+        if (editedName.value === '' || editedDescription.value === '') {
+            $toast.error('Please fill in all fields', toastConfig('error'))
             return;
+        }
+        if (editedName.value === props.name && editedDescription.value === props.description){
+            $toast.error('Please make some changes before updating', toastConfig('error'))
+            return
+        }
+
+        const body = {}
+        // Only include edited fields in the request body
+        if(editedName.value !== props.name){
+            body.name = editedName.value
+        }
+        if(editedDescription.value !== props.description){
+            body.description = editedDescription.value
         }
 
         loading.value = true
         try{
-            const response = await api.post('/gardens/add/', {
-                name: gardenName.value,
-                description: description.value,
-                visibility: true,
-            })
+            const response = await api.patch(`/gardens/update/${props._id}`, body)
             const garden = response.data.data
-            $toast.success(`Garden ${gardenName.value} created`, toastConfig('success'));
-            emit('gardenAdded', { ...garden, plants: [] });
+            $toast.success(`Garden ${gardenName.value} updated`, toastConfig('success'));
+            emit('update', garden);
         } catch(err) {
             if(err?.response?.data?.message){
                 $toast.error(`Error creating garden: ${err.response.data.message}`, toastConfig('error'));
@@ -49,25 +72,25 @@
 <template>
     <div class="overlay">
         <form @submit.prevent>
-            <h1>New Garden</h1>
+            <h1>Update Garden</h1>
             <div class="input-group">
                 <div class="input-wrapper">
                     <label for="gardenName">Name</label>
-                    <input type="text" id="gardenName" v-model="gardenName" />
+                    <input type="text" id="gardenName" v-model="editedName" />
                 </div>
                 <div class="input-wrapper">
                     <label for="description">Description</label>
-                    <textarea id="description" v-model="description" required></textarea>
+                    <textarea id="description" v-model="editedDescription" required></textarea>
                 </div>
             </div>
             <div class="loading-wrapper" v-if="loading">
                 <Loading />
             </div>
             <div class="btn-toolbar">
-                <button id="create" type="button" @click="handleCreateGarden">
-                    Create Garden
+                <button id="create" type="button" @click="handleUpdateGarden">
+                    Update
                 </button>
-                <button id="cancel" type="button" @click="emit('close')">Cancel</button>
+                <button id="cancel" type="button" @click="emit('cancel')">Cancel</button>
             </div>
         </form>
     </div>

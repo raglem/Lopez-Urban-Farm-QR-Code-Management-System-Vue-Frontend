@@ -9,7 +9,8 @@
     import Loading from '../components/Loading.vue'
     import GardenImage from '../components/Garden/GardenImage.vue'
     import AddGardenImage from '../components/Garden/AddGardenImage.vue'
-import EmptyImageCarousel from '../components/EmptyImageCarousel.vue'
+    import EmptyImageCarousel from '../components/EmptyImageCarousel.vue'
+    import EditGardenFields from '../components/Garden/EditGardenFields.vue'
 
     const props = defineProps({
         _id: {
@@ -19,15 +20,17 @@ import EmptyImageCarousel from '../components/EmptyImageCarousel.vue'
     })
 
     const name = ref('')
+    const description = ref('')
     const images = ref([])
     const imageURLs = computed(() => {
         return images.value.map(image => image.url)
     })
     const plants = ref([])
 
-    // For handling image editing
+    // For handling field updates and image editing
     const addMode = ref(false)
     const editMode = ref(false)
+    const manageImagesMode = ref(false)
 
     const loading = ref(false)
     const $toast = useToast()
@@ -38,7 +41,8 @@ import EmptyImageCarousel from '../components/EmptyImageCarousel.vue'
             try {
                 const response = await api.get(`/gardens/${props._id}`);
                 const garden = response.data.data
-                name.value = garden.name;
+                name.value = garden.name
+                description.value = garden.description
                 images.value = garden.images || []
                 plants.value = garden.plants || []
                 console.log(garden)
@@ -64,6 +68,13 @@ import EmptyImageCarousel from '../components/EmptyImageCarousel.vue'
         images.value.push(image)
         addMode.value = false
     }
+    const handleGardenFieldsUpdate = (garden) => {
+        console.log(garden)
+        name.value = garden.name
+        description.value = garden.description
+        editMode.value = false
+        $toast.success(`Garden ${garden.name} updated`, toastConfig('success'))
+    }
 </script>
 
 <template>
@@ -73,6 +84,14 @@ import EmptyImageCarousel from '../components/EmptyImageCarousel.vue'
         @upload="handleAddedImage"
         @cancel="addMode=false"
     />
+    <EditGardenFields
+        :_id="props._id"
+        :name="name"
+        :description="description"
+        @update="handleGardenFieldsUpdate"
+        @cancel="editMode = false"
+        v-if="editMode"
+    />
     <div class="loading-wrapper" v-if="loading">
         <Loading />
     </div>
@@ -81,24 +100,35 @@ import EmptyImageCarousel from '../components/EmptyImageCarousel.vue'
             <header>
                 <h1>{{ name }}</h1>
                 <div class="btn-toolbar" v-if="!editMode">
-                    <button id="add-image" @click="addMode = true">
-                        Add <i class="pi pi-plus"></i>
-                    </button>
                     <button id="edit-image" @click="editMode = true">
                         Edit <i class="pi pi-cog"></i>
                     </button>
                 </div>
                 <div class="btn-toolbar" v-else>
-                    <button id="edit-image" @click="editMode = false">
+                    <button @click="editMode = false">
                         Done
                     </button>
                 </div>
             </header>
+            <p>{{ description }}</p>
             <div class="image-carousel-wrapper">
                 <ImageCarousel v-if="images.length > 0" :images="imageURLs" />
                 <EmptyImageCarousel :message="'No Images Uploaded'"v-else />
             </div>
             <br/>
+            <div class="btn-toolbar" v-if="!manageImagesMode">
+                <button id="add-image" @click="addMode = true">
+                    Add <i class="pi pi-plus"></i>
+                </button>
+                <button id="edit-image" @click="manageImagesMode = true">
+                    Manage <i class="pi pi-cog"></i>
+                </button>
+            </div>
+            <div class="btn-toolbar" v-else>
+                <button @click="manageImagesMode = false">
+                    Done
+                </button>
+            </div>
             <div class="images-wrapper">
                 <GardenImage 
                     v-for="image in images" 
@@ -106,7 +136,7 @@ import EmptyImageCarousel from '../components/EmptyImageCarousel.vue'
                     :garden_id="props._id"
                     :public_id="image.public_id"
                     :image="image.url"
-                    :editMode="editMode"
+                    :editMode="manageImagesMode"
                     @delete="images = images.filter(img => img.public_id !== image.public_id)"
                 />
             </div>

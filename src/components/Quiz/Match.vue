@@ -173,6 +173,7 @@
         max-height: 300px;
         height: 150px;
         width: 40vw;
+        color: black;
     }
     @media (min-width: 768px){
         .card, .card-selected, .card-matched{

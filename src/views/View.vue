@@ -6,15 +6,22 @@
     import toastConfig from '../assets/toastNotification';
 
     import api from '../api.js'
+    import AddGarden from '../components/Garden/AddGarden.vue';
     import Loading from '../components/Loading.vue';
     import PlantCard from '../components/PlantCard.vue';
     import { useUserStore } from '../stores/user.js';
     import { useRouter } from 'vue-router';
 
     const plants = ref([])
+    const gardens = ref([])
+
     const mode = ref('name')
     const order = ref('descending')
-    const editing = ref(false)
+    const editing = ref(true)
+    const addingGarden = ref(false)
+    let gardensMarkedForDeletion = []
+
+
     const loading = ref(false)
     const router = useRouter()
     const $toast = useToast()
@@ -22,7 +29,12 @@
     const { isAuthenticated } = storeToRefs(store)
 
     onMounted(() => {
-        fetchPlants()
+        const fetchAll = async () => {
+            loading.value = true
+            await Promise.all([fetchPlants(), fetchGardens()])
+            loading.value = false
+        }
+        fetchAll()
     })
 
     const name_sorted_plants = computed(() => {
@@ -39,70 +51,39 @@
         return [...visiblePlants, ...invisiblePlants];
     });
 
-    const garden_categorized_plants = computed(() => {
-        let gardens = []
-        plants.value.forEach(p => {
-            // If the plant does not have a garden, continue
-            if(!p.garden){
-                return
-            }
-            // If the garden is already in the gardens array, continue
-            const gardenIndex = gardens.findIndex(g => g.id === p.garden._id);
-            if(gardenIndex >= 0){
-                return
-            }
-            // If the garden is not in the gardens array, add it
-            gardens.push({
-                _id: p.garden._id,
-                name: p.garden.name,
-                plants: []
-            })
-        })
-
-        // Sort gardens by name
-        gardens.sort((a, b) => a.name.localeCompare(b.name));
-        if(order.value === 'ascending') {
-            gardens.reverse();
-        }
-
-        // Add a "No Garden" entry if there are plants without a garden
-        if(plants.value.some(p => !p.garden)){
-            gardens.push({
-                _id: 'no-garden',
-                name: 'No Garden',
-                plants: []
-            })
-        }
-        plants.value.forEach((p) => {
-            if (!p.garden) {
-                const noGarden = gardens[gardens.length - 1]
-                noGarden.plants.push(p)
-            }
-            else{
-                const gardenIndex = gardens.findIndex(g => g._id === p.garden._id);
-                gardens[gardenIndex].plants.push(p);
-            }
-        })
-
-        // Sort plants in each garden by name and visibility
-        gardens = gardens.map(garden => {
-            const visiblePlants = garden.plants.filter(p => p.visibility !== false);
-            const invisiblePlants = garden.plants.filter(p => p.visibility === false);
-
+    const garden_sorted_plants = computed(() => {
+        let tmp = gardens.value.map(garden => {
+            const visiblePlants = garden.plants.filter(p => p.visibility !== false)
+            const invisiblePlants = garden.plants.filter(p => p.visibility === false)
+            
             visiblePlants.sort((a, b) => a.name.localeCompare(b.name));
             invisiblePlants.sort((a, b) => a.name.localeCompare(b.name));
 
-            return {...garden, plants: [...visiblePlants, ...invisiblePlants]};
+            return { ...garden, plants: [...visiblePlants, ...invisiblePlants] }
         })
-        
-        if(order === 'ascending'){
-            gardens.reverse()
+        tmp.sort((a, b) => a.name.localeCompare(b.name))
+
+        if(order.value === 'ascending') {
+            tmp.reverse()
         }
-        return gardens
+
+        if(!plants.value)   return tmp
+
+        // Handle plants without a garden
+        const unassigned_plants = plants.value.filter(p => !p.garden)
+        if(unassigned_plants.length > 0) {
+            const visiblePlants = unassigned_plants.filter(p => p.visibility !== false).sort((a, b) => a.name.localeCompare(b.name))
+            const invisiblePlants = unassigned_plants.filter(p => p.visibility === false).sort((a, b) => a.name.localeCompare(b.name))
+            tmp.push({
+                _id: 'no-garden',
+                name: 'No Garden',
+                plants: [...visiblePlants, ...invisiblePlants],
+            })
+        }
+        return tmp
     })
 
     const fetchPlants = async () => {
-        loading.value = true
         try{
             const response = await api.get('/plants/')
             plants.value = response.data.data
@@ -115,8 +96,20 @@
                 $toast.error('Error fetching plants', toastConfig('error'));
             }
         }
-        finally{
-            loading.value = false
+    }
+
+    const fetchGardens = async () => {
+        try{
+            const response = await api.get('/gardens/full/')
+            gardens.value = response.data.data
+        }
+        catch(err){
+            if(err.message){
+                $toast.error(`Error fetching gardens: ${err.message}`, toastConfig('error'));
+            }
+            else{
+                $toast.error('Error fetching gardens', toastConfig('error'));
+            }
         }
     }
     const handleDeletedPlant = (id) => {
@@ -139,10 +132,54 @@
     const toggleEdit = () => {
         editing.value = !editing.value;
     };
+    const handleNewGarden = (garden) => {
+        gardens.value.push(garden);
+        gardens.value.sort((a, b) => {
+            if(a.id === 'no-garden') return 1
+            if(b.id === 'no-garden') return -1
+            return a.name.localeCompare(b.name)
+        });
+        addingGarden.value = false;
+        $toast.success(`Garden ${garden.name} added`, toastConfig('success'));
+    }
+    const handleDeleteGarden = async (_id) => {
+        if(gardensMarkedForDeletion.includes(_id))  return
+        gardensMarkedForDeletion.push(_id)
+        const plants = garden_sorted_plants.value.find(garden => garden._id === _id)?.plants || [];
+        try{
+            const res = await api.delete(`/gardens/remove/${_id}/`)
+            gardens.value = gardens.value.filter(garden => garden._id !== _id);
+
+            // Add plants of deleted garden to the "No Garden" section
+            const noGarden = gardens.value.find(garden => garden._id === 'no-garden')
+            noGarden.plants.push(...plants)
+            noGarden.plants.sort((a, b) => a.name.localeCompare(b.name));
+            $toast.success(`Garden deleted`, toastConfig('success'));
+        }
+        catch(err){
+            if(err?.response?.data?.message){
+                $toast.error(`Error deleting garden: ${err.response.data.message}`, toastConfig('error'));
+            }
+            else if(err.message){
+                $toast.error(`Error deleting garden: ${err.message}`, toastConfig('error'));
+            }
+            else{
+                $toast.error('Error deleting garden', toastConfig('error'));
+            }
+        }
+        finally{
+            gardensMarkedForDeletion = gardensMarkedForDeletion.filter(id => id !== _id);
+        }
+    }
 
 </script>
 
 <template>
+    <AddGarden 
+        v-if="addingGarden"
+        @close="addingGarden = false"
+        @gardenAdded="handleNewGarden"
+    />
     <div id="wrapper">
         <nav :class="isAuthenticated ? 'space-between' : 'view-mode'">
             <div id="edit-wrapper" v-if="isAuthenticated">
@@ -151,7 +188,7 @@
                         <span>Edit</span>
                         <i class="pi pi-cog"></i>
                     </button>
-                    <button id="add-garden-btn" @click="toggleEdit" v-if="mode === 'garden'">
+                    <button id="add-garden-btn" @click="addingGarden = true" v-if="mode === 'garden'">
                         <span>Add Garden</span>
                         <i class="pi pi-plus"></i>
                     </button>
@@ -187,11 +224,14 @@
         <div 
             class="gardens-wrapper"
             v-if="!loading && mode==='garden'" 
-            v-for="garden in garden_categorized_plants" :key="garden._id"
+            v-for="garden in garden_sorted_plants" :key="garden._id"
         >
             <header>
                 <h2 class="link" @click="router.push(`/garden/${garden._id}`)">{{ garden.name }}</h2>
-                <i class="pi pi-pencil" @click="router.push(`/garden/edit/${garden._id}`)" v-if="editing"></i>
+                <div class="garden-toolbar">
+                    <i class="pi pi-pencil" @click="router.push(`/garden/edit/${garden._id}`)" v-if="editing && garden._id !== 'no-garden'"></i>
+                    <i class="pi pi-trash" @click="handleDeleteGarden(garden._id)" v-if="editing && garden._id !== 'no-garden'"></i>
+                </div>
             </header>
             <div class="grid">
                 <PlantCard 
@@ -333,5 +373,21 @@
         cursor: pointer;
         text-decoration: underline;
         color: var(--primary);
+    }
+    .garden-toolbar{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        column-gap: 10px;
+    }
+    .pi-pencil{
+        color: var(--primary)
+    }
+    .pi-trash{
+        color: red
+    }
+    .pi-pencil:hover, .pi-trash:hover{
+        cursor: pointer;
+        opacity: 80%;
     }
 </style>
