@@ -3,7 +3,9 @@ import { useUserStore } from '../stores/user'
 
 import Account from '../views/Account.vue'
 import Add from '../views/Add.vue'
+import EditGarden from '../views/EditGarden.vue'
 import FetchedPlant from '../views/FetchedPlant.vue'
+import Garden from '../views/Garden.vue'
 import Login from '../views/Login.vue'
 import NotFound from '../views/NotFound.vue'
 import Plant from '../views/Plant.vue'
@@ -14,39 +16,17 @@ import Quiz from '../views/Quiz.vue'
 const publicRoutes = [
   { path: '/login', name: 'Login', component: Login },
   { path: '/view', name: 'View', component: View, props: true },
-  {
-    path: '/quiz',
-    name: 'Quiz',
-    component: Quiz
-  },
+  { path: '/quiz', name: 'Quiz', component: Quiz },
+  { path: '/garden/:_id', name: 'Garden', component: Garden, props: true },
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
+  { path: '/plant/:_id', name: 'FetchedPlant', component: FetchedPlant, props: true },
 ]
 
 const privateRoutes = [
   { path: '/add', name: 'Add', component: Add },
-  { 
-    path: '/plant/:name/:species/:description/:image?', 
-    name: 'Plant', 
-    component: Plant, 
-    props: true,
-  },
-  { 
-    path: '/plant/:_id', 
-    name: 'FetchedPlant', 
-    component: FetchedPlant, 
-    props: true,
-  },
-  { 
-    path: '/update/:_id', 
-    name: 'Update', 
-    component: Update, 
-    props: true 
-  },
-  {
-    path: '/account',
-    name: 'Account',
-    component: Account
-  },
+  { path: '/update/:_id', name: 'Update', component: Update, props: true },
+  { path: '/account', name: 'Account', component: Account },
+  { path: '/garden/edit/:_id', name: 'Editgarden', component: EditGarden, props: true },
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
 ]
 

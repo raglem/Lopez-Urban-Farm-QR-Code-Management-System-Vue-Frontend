@@ -51,12 +51,17 @@
 
     const handlePlant = () => {
         router.push({
-            name: 'Plant',
+            name: 'FetchedPlant',
             params: {
-                name: props.name,
-                species: props.species,
-                description: props.description,
-                image: props.image,
+                _id: props._id
+            }
+        });
+    }
+    const handleGarden = () => {
+        router.push({
+            name: 'Garden',
+            params: {
+                _id: props.garden._id,
             }
         });
     }
@@ -145,11 +150,15 @@
                     v-if="!edit && !visibility"
                 ></i>
                 <div v-if="props.garden" class="column">
-                    <h4 @click="handlePlant">{{ props.name }} | Garden: {{ props.garden.name }}</h4>
+                    <h4>
+                        <text @click="handlePlant" class="link">{{ props.name }}</text>
+                        | 
+                        <text @click="handleGarden" class="link">{{ props.garden.name }}</text>
+                    </h4>
                     <text><i>Species: {{ props.species }}</i></text>
                 </div>
                 <div v-else>
-                    <h4 @click="handlePlant">{{ props.name }} | Species: {{ props.species }}</h4>
+                    <h4 @click="handlePlant" class="link">{{ props.name }} | Species: {{ props.species }}</h4>
                 </div>
             </div>
             <span class="btn-toolbar" v-if="edit">
@@ -199,7 +208,7 @@
         justify-content: space-between;
         align-items: center;
         column-gap: 5px;
-        padding: 10px 10px;
+        padding: 10px;
         height: 50px;
         min-height: fit-content;
         border-bottom: 1px solid black;
@@ -262,7 +271,7 @@
             width: 100%;
         }
     }
-    h4:hover{
+    .link:hover{
         cursor: pointer;
         color: var(--primary);
         text-decoration: underline;

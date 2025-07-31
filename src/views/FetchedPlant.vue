@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toast-notification'
 import 'vue-toast-notification/dist/theme-sugar.css';
 
@@ -18,9 +18,11 @@ const props = defineProps({
 const name = ref('')
 const species = ref('')
 const description = ref('')
+const garden = ref(null)
 const image = ref(null)
 const loading = ref(false)
 const $toast = useToast()
+const router = useRouter()
 
 onMounted(() => {
     fetchPlant()
@@ -35,6 +37,7 @@ const fetchPlant = async () => {
         name.value = data.name
         species.value = data.species
         description.value = data.description
+        garden.value = data.garden
         image.value = data?.image?.url || null
     }
     catch(err){
@@ -54,13 +57,32 @@ const fetchPlant = async () => {
     }
 }
 
+const handleGarden = () => {
+    router.push({
+        name: 'Garden',
+        params: {
+            _id: props._id
+        }
+    });
+}
+
 </script>
 
 <template>
     <div id="wrapper">
         <article v-if="!loading">
             <header>
-                <h4>{{ name }} | Species: {{ species }}</h4>
+                <div v-if="garden" class="column">
+                    <h4>
+                        <text>{{ name }}</text>
+                        | 
+                        <text @click="handleGarden" class="link">{{ garden.name }}</text>
+                    </h4>
+                    <text><i>Species: {{ species }}</i></text>
+                </div>
+                <div v-else>
+                    <h4>{{ name }} | Species: {{ species }}</h4>
+                </div>
             </header>
             <p> 
                 <img v-if="image" :src="image">
@@ -93,9 +115,24 @@ const fetchPlant = async () => {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        padding: 0px 10px;
-        height: 30%;
+        column-gap: 5px;
+        padding: 10px;
+        height: 50px;
+        min-height: fit-content;
         border-bottom: 1px solid black;
+    }
+    header h4{
+        margin: 0;
+    }
+    header .column{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+    }
+    header .column > text{
+        font-size: 0.8rem;
+        color: black;
     }
     p{
         display: flex;
@@ -118,5 +155,10 @@ const fetchPlant = async () => {
         p > img{
             width: 100%;
         }
+    }
+    .link:hover{
+        cursor: pointer;
+        color: var(--primary);
+        text-decoration: underline;
     }
 </style>
