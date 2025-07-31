@@ -42,10 +42,12 @@ const handleDownload = async () => {
 <style scoped>
     #wrapper{
         display: flex;
+        flex-direction: row;
         justify-content: space-evenly;
         align-items: center;
         position: relative;
         column-gap: 5px;
+        padding: 0px;
     }
     #download-icon:hover{
         cursor: pointer;
@@ -59,7 +61,6 @@ const handleDownload = async () => {
         top: auto;
         bottom: 100%;
         right: 0;
-        padding: 0px 5px;
         white-space: nowrap;
         border: 1px solid black;
         background: lightgray;

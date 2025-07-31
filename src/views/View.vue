@@ -6,42 +6,84 @@
     import toastConfig from '../assets/toastNotification';
 
     import api from '../api.js'
+    import AddGarden from '../components/Garden/AddGarden.vue';
     import Loading from '../components/Loading.vue';
     import PlantCard from '../components/PlantCard.vue';
     import { useUserStore } from '../stores/user.js';
+    import { useRouter } from 'vue-router';
 
     const plants = ref([])
+    const gardens = ref([])
+
     const mode = ref('name')
     const order = ref('descending')
-    const editing = ref(false)
+    const editing = ref(true)
+    const addingGarden = ref(false)
+    let gardensMarkedForDeletion = []
+
+
     const loading = ref(false)
+    const router = useRouter()
     const $toast = useToast()
     const store = useUserStore()
     const { isAuthenticated } = storeToRefs(store)
 
     onMounted(() => {
-        fetchPlants()
+        const fetchAll = async () => {
+            loading.value = true
+            await Promise.all([fetchPlants(), fetchGardens()])
+            loading.value = false
+        }
+        fetchAll()
     })
 
-    const sorted_plants = computed(() => {
+    const name_sorted_plants = computed(() => {
         const visiblePlants = plants.value.filter(p => p.visibility !== false);
         const invisiblePlants = plants.value.filter(p => p.visibility === false);
 
-        if (mode.value === 'name') {
-            visiblePlants.sort((a, b) => a.name.localeCompare(b.name));
-            invisiblePlants.sort((a, b) => a.name.localeCompare(b.name));
-        } else {
-            visiblePlants.sort((a, b) => a.species.localeCompare(b.species));
-            invisiblePlants.sort((a, b) => a.species.localeCompare(b.species));
-        }
-        if (order.value === 'ascending') {
+        visiblePlants.sort((a, b) => a.name.localeCompare(b.name));
+        invisiblePlants.sort((a, b) => a.name.localeCompare(b.name));
+
+        if(order.value === 'ascending') {
             visiblePlants.reverse();
             invisiblePlants.reverse();
         }
         return [...visiblePlants, ...invisiblePlants];
     });
+
+    const garden_sorted_plants = computed(() => {
+        let tmp = gardens.value.map(garden => {
+            const visiblePlants = garden.plants.filter(p => p.visibility !== false)
+            const invisiblePlants = garden.plants.filter(p => p.visibility === false)
+            
+            visiblePlants.sort((a, b) => a.name.localeCompare(b.name));
+            invisiblePlants.sort((a, b) => a.name.localeCompare(b.name));
+
+            return { ...garden, plants: [...visiblePlants, ...invisiblePlants] }
+        })
+        tmp.sort((a, b) => a.name.localeCompare(b.name))
+
+        if(order.value === 'ascending') {
+            tmp.reverse()
+        }
+
+        if(!plants.value)   return tmp
+
+        // Handle plants without a garden
+        const unassigned_plants = plants.value.filter(p => !p.garden)
+        if(unassigned_plants.length > 0) {
+            const visiblePlants = unassigned_plants.filter(p => p.visibility !== false).sort((a, b) => a.name.localeCompare(b.name))
+            const invisiblePlants = unassigned_plants.filter(p => p.visibility === false).sort((a, b) => a.name.localeCompare(b.name))
+            tmp.push({
+                _id: 'no-garden',
+                name: 'No Garden',
+                plants: [...visiblePlants, ...invisiblePlants],
+            })
+        }
+        return tmp
+    })
+
     const fetchPlants = async () => {
-        loading.value = true
         try{
             const response = await api.get('/plants/')
             plants.value = response.data.data
@@ -54,8 +96,20 @@
                 $toast.error('Error fetching plants', toastConfig('error'));
             }
         }
-        finally{
-            loading.value = false
+    }
+
+    const fetchGardens = async () => {
+        try{
+            const response = await api.get('/gardens/full/')
+            gardens.value = response.data.data
+        }
+        catch(err){
+            if(err.message){
+                $toast.error(`Error fetching gardens: ${err.message}`, toastConfig('error'));
+            }
+            else{
+                $toast.error('Error fetching gardens', toastConfig('error'));
+            }
         }
     }
     const handleDeletedPlant = (id) => {
@@ -78,32 +132,82 @@
     const toggleEdit = () => {
         editing.value = !editing.value;
     };
+    const handleNewGarden = (garden) => {
+        gardens.value.push(garden);
+        gardens.value.sort((a, b) => {
+            if(a.id === 'no-garden') return 1
+            if(b.id === 'no-garden') return -1
+            return a.name.localeCompare(b.name)
+        });
+        addingGarden.value = false;
+        $toast.success(`Garden ${garden.name} added`, toastConfig('success'));
+    }
+    const handleDeleteGarden = async (_id) => {
+        if(gardensMarkedForDeletion.includes(_id))  return
+        gardensMarkedForDeletion.push(_id)
+        const plants = garden_sorted_plants.value.find(garden => garden._id === _id)?.plants || [];
+        try{
+            const res = await api.delete(`/gardens/remove/${_id}/`)
+            gardens.value = gardens.value.filter(garden => garden._id !== _id);
+
+            // Add plants of deleted garden to the "No Garden" section
+            const noGarden = gardens.value.find(garden => garden._id === 'no-garden')
+            noGarden.plants.push(...plants)
+            noGarden.plants.sort((a, b) => a.name.localeCompare(b.name));
+            $toast.success(`Garden deleted`, toastConfig('success'));
+        }
+        catch(err){
+            if(err?.response?.data?.message){
+                $toast.error(`Error deleting garden: ${err.response.data.message}`, toastConfig('error'));
+            }
+            else if(err.message){
+                $toast.error(`Error deleting garden: ${err.message}`, toastConfig('error'));
+            }
+            else{
+                $toast.error('Error deleting garden', toastConfig('error'));
+            }
+        }
+        finally{
+            gardensMarkedForDeletion = gardensMarkedForDeletion.filter(id => id !== _id);
+        }
+    }
 
 </script>
 
 <template>
+    <AddGarden 
+        v-if="addingGarden"
+        @close="addingGarden = false"
+        @gardenAdded="handleNewGarden"
+    />
     <div id="wrapper">
         <nav :class="isAuthenticated ? 'space-between' : 'view-mode'">
             <div id="edit-wrapper" v-if="isAuthenticated">
-                <button id="edit-btn" @click="toggleEdit">
-                    <div v-if="!editing">
+                <div class="btn-group" v-if="!editing">
+                    <button id="edit-btn" @click="toggleEdit">
                         <span>Edit</span>
                         <i class="pi pi-cog"></i>
-                    </div>
-                    <span v-else>Done</span>
+                    </button>
+                    <button id="add-garden-btn" @click="addingGarden = true" v-if="mode === 'garden'">
+                        <span>Add Garden</span>
+                        <i class="pi pi-plus"></i>
+                    </button>
+                </div>
+                <button id="done-btn" v-else>
+                    <span @click="editing = false">Done</span>
                 </button>
             </div>
             <div>
                 <label class="switch">
                     <button id="name" :class="(mode === 'name') ? 'active' : 'inactive'" @click="mode = 'name'">Name</button>
-                    <button id="species" :class="(mode === 'species') ? 'active' : 'inactive'" @click="mode = 'species'">Species</button>
+                    <button id="garden" :class="(mode === 'garden') ? 'active' : 'inactive'" @click="mode = 'garden'">Garden</button>
                 </label>
                 <i :class="(order === 'descending') ? 'pi pi-arrow-up' : 'pi pi-arrow-down'" @click="order = (order === 'descending') ? 'ascending' : 'descending'"></i>
             </div>
         </nav>
-        <div class="grid" v-if="!loading">
+        <div class="grid" v-if="!loading && mode==='name'">
             <PlantCard 
-                v-for="plant in sorted_plants" 
+                v-for="plant in name_sorted_plants" 
                 @delete-plant="handleDeletedPlant"
                 @toggle-visibility="handleToggledVisibility"
                 :key="plant._id" 
@@ -111,12 +215,42 @@
                 :name="plant.name" 
                 :species="plant.species" 
                 :description="plant.description"
+                :garden="plant.garden"
                 :visibility="plant.visibility"
                 :image="plant?.image?.url"
                 :edit="editing"
             />
         </div>
-        <div class="loading-wrapper" v-else>
+        <div 
+            class="gardens-wrapper"
+            v-if="!loading && mode==='garden'" 
+            v-for="garden in garden_sorted_plants" :key="garden._id"
+        >
+            <header>
+                <h2 class="link" @click="router.push(`/garden/${garden._id}`)">{{ garden.name }}</h2>
+                <div class="garden-toolbar">
+                    <i class="pi pi-pencil" @click="router.push(`/garden/edit/${garden._id}`)" v-if="editing && garden._id !== 'no-garden'"></i>
+                    <i class="pi pi-trash" @click="handleDeleteGarden(garden._id)" v-if="editing && garden._id !== 'no-garden'"></i>
+                </div>
+            </header>
+            <div class="grid">
+                <PlantCard 
+                    v-for="plant in garden.plants" 
+                    @delete-plant="handleDeletedPlant"
+                    @toggle-visibility="handleToggledVisibility"
+                    :key="plant._id" 
+                    :_id="plant._id"
+                    :name="plant.name" 
+                    :species="plant.species" 
+                    :description="plant.description"
+                    :garden="plant.garden"
+                    :visibility="plant.visibility"
+                    :image="plant?.image?.url"
+                    :edit="editing"
+                />
+            </div>
+        </div>
+        <div class="loading-wrapper" v-if="loading">
             <Loading />
         </div>
     </div>
@@ -156,19 +290,51 @@
         grid-template-columns: repeat(1, 1fr);
         gap: 20px;
     }
+    .gardens-wrapper{
+        display: flex;
+        flex-direction: column;
+        row-gap: 20px;
+    }
+    .gardens-wrapper > header{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid black;
+        width: 100%;
+    }
+    .gardens-wrapper > header > h2{
+        font-size: 1.5rem;
+        color: black;
+        margin: none;
+    }
+    .gardens-wrapper > header > i{
+        font-size: 1.2rem;
+        opacity: 80%;
+        color: var(--primary);
+        cursor: pointer;
+    }
+    .btn-group{
+        display: flex;
+        flex-direction: row;
+        column-gap: 0px;
+    }
     .switch{
         display: flex;
     }
-    #edit-btn, .switch button{
+    .btn-group button, .switch button{
         display: flex;
         justify-content: center;
         align-items: center;
         padding: 2px 10px;
         border: 1px solid black;
+        column-gap: 10px;
     }
-    #edit-btn div{
-        display: flex;
-        justify-content: space-evenly;
+    #add-garden-btn{
+        border-left: none;
+    }
+    #done-btn{
+        border: 1px solid black;
     }
     .switch button.active{
         font-size: 1rem;
@@ -182,6 +348,9 @@
     }
     .switch #date{
         border-right: 1px solid black;
+    }
+    #garden{
+        border-left: none;
     }
     @media (min-width: 768px) {
         .grid{
@@ -199,5 +368,26 @@
         align-items: center;
         height: 100%;
         width: 100%;
+    }
+    .link:hover{
+        cursor: pointer;
+        text-decoration: underline;
+        color: var(--primary);
+    }
+    .garden-toolbar{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        column-gap: 10px;
+    }
+    .pi-pencil{
+        color: var(--primary)
+    }
+    .pi-trash{
+        color: red
+    }
+    .pi-pencil:hover, .pi-trash:hover{
+        cursor: pointer;
+        opacity: 80%;
     }
 </style>

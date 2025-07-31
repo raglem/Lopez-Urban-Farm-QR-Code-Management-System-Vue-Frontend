@@ -26,6 +26,10 @@
             type: String,
             required: true
         },
+        garden: {
+            type: Object,
+            required: false,
+        },
         visibility: {
             type: Boolean,
             required: true
@@ -47,12 +51,17 @@
 
     const handlePlant = () => {
         router.push({
-            name: 'Plant',
+            name: 'FetchedPlant',
             params: {
-                name: props.name,
-                species: props.species,
-                description: props.description,
-                image: props.image,
+                _id: props._id
+            }
+        });
+    }
+    const handleGarden = () => {
+        router.push({
+            name: 'Garden',
+            params: {
+                _id: props.garden._id,
             }
         });
     }
@@ -61,11 +70,6 @@
             name: 'Update',
             params: {
                 _id: props._id,
-                name: props.name,
-                species: props.species,
-                description: props.description,
-                visibility: visibility.value,
-                image: props.image
             }
         });
     }
@@ -145,7 +149,17 @@
                     :class="'default'"
                     v-if="!edit && !visibility"
                 ></i>
-                <h4 @click="handlePlant">{{ props.name }} | Species: {{ props.species }}</h4>
+                <div v-if="props.garden" class="column">
+                    <h4>
+                        <text @click="handlePlant" class="link">{{ props.name }}</text>
+                        | 
+                        <text @click="handleGarden" class="link">{{ props.garden.name }}</text>
+                    </h4>
+                    <text><i>Species: {{ props.species }}</i></text>
+                </div>
+                <div v-else>
+                    <h4 @click="handlePlant" class="link">{{ props.name }} | Species: {{ props.species }}</h4>
+                </div>
             </div>
             <span class="btn-toolbar" v-if="edit">
                 <i 
@@ -194,9 +208,20 @@
         justify-content: space-between;
         align-items: center;
         column-gap: 5px;
-        padding: 0px 10px;
-        height: 30%;
+        padding: 10px;
+        height: 50px;
+        min-height: fit-content;
         border-bottom: 1px solid black;
+    }
+    header .column{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+    }
+    header .column > text{
+        font-size: 0.8rem;
+        color: black;
     }
     header > .btn-toolbar{
         display: flex;
@@ -204,7 +229,10 @@
         align-items: center;
         column-gap: 8px;
     }
-    header i{
+    header h4{
+        margin: 0;
+    }
+    header i.pi-eye, header i.pi-pencil{
         color: var(--primary);
     }
     header i.pi-trash{
@@ -243,7 +271,7 @@
             width: 100%;
         }
     }
-    h4:hover{
+    .link:hover{
         cursor: pointer;
         color: var(--primary);
         text-decoration: underline;

@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, onUnmounted } from 'vue'
+    import { ref, onMounted, onUnmounted } from 'vue'
     import { useRouter } from 'vue-router';
     import { useToast } from 'vue-toast-notification'
     import 'vue-toast-notification/dist/theme-sugar.css';
@@ -7,41 +7,62 @@
     import api from '../api.js'
     import Loading from '../components/Loading.vue'
     import toastConfig from '../assets/toastNotification.js'
+    import GardenDropdown from '../components/Garden/GardenDropdown.vue';
 
-    const props = defineProps({
-        _id: {
-            type: String,
-            required: true,
-        },
-        name: {
-            type: String,
-            required: true,
-        },
-        species: {
-            type: String,
-            required: true,
-        },
-        description: {
-            type: String,
-            required: true,
-        },
-        visibility: {
-            type: String,
-            required: true
-        },
-        image: {
-            type: String,
-            required: false,
+    const props = defineProps({'_id': { type: String, required: true }})
+    const originalFields = [
+        'name',
+        'species',
+        'description',
+        'garden',
+        'visibility'
+    ]
+
+    onMounted(() => {
+        async function fetchPlant(){
+            loading.value = true
+            try{
+                const response = await api.get(`/plants/${props._id}`)
+                const plant = response.data.data
+                
+                originalFields.forEach(field => {
+                    originalFields[field] = plant[field]
+                })
+
+                name.value = plant.name
+                species.value = plant.species
+                description.value = plant.description
+                garden.value = plant.garden || null
+                visibility.value = plant.visibility ? 'Public' : 'Private'
+                imageSrc.value = plant?.image?.url || null
+                console.log(response.data.data)
+            }
+            catch(err){
+                if(err?.response?.data?.message){
+                    $toast.error(`Error fetching plant: ${err.response.data.message}`, toastConfig('error'));
+                }
+                else if(err.message){
+                    $toast.error(`Error fetching plant: ${err.message}`, toastConfig('error'));
+                }
+                else{
+                    $toast.error('Error fetching plant', toastConfig('error'));
+                }
+            }
+            finally{
+                loading.value = false
+            }
         }
+        fetchPlant()
     })
 
-    const name = ref(props.name)
-    const species = ref(props.species)
-    const description = ref(props.description)
-    const visibility = ref(props.visibility === 'true' ? 'Public' : 'Private')
+    const name = ref("")
+    const species = ref("")
+    const description = ref("")
+    const garden = ref(null)
+    const visibility = ref("")
     
     // For image upload and preview
-    const imageSrc = ref(props.image || null)
+    const imageSrc = ref(null)
     let imageFile = null
     let previousImageURL = null
     let changedImage = false
@@ -109,16 +130,19 @@
         const fd = new FormData()
         fd.append('id', props._id)
         // For text fields, only append if they have changed
-        if(name.value !== props.name){
+        if(name.value !== originalFields.name){
             fd.append('name', name.value)
         }
-        if(species.value !== props.species){
+        if(species.value !== originalFields.species){
             fd.append('species', species.value)
         }
-        if(description.value !== props.description){
+        if(description.value !== originalFields.description){
             fd.append('description', description.value)
         }
-        if(visibility.value !== props.visibility){
+        if(garden.value !== originalFields.garden){
+            fd.append('garden', garden.value ? garden.value._id : null)
+        }
+        if(visibility.value !== originalFields.visibility){
             fd.append('visibility', visibility.value === 'Public' ? true : false)
         }
         // For image, append if it has changed or append the key 'deleteImage' if the image is removed
@@ -188,8 +212,9 @@
 
 <template>
     <div id="wrapper">
-        <form @submit.prevent="handleSubmit">
-            <h1>Update {{  props.name }}</h1>
+        <Loading v-if="loading" />
+        <form @submit.prevent="handleSubmit" v-else>
+            <h1>Update {{  originalFields.name }}</h1>
             <div>
                 <label for="name">Name</label>
                 <input type="text" id="name" name="name" required v-model="name">
@@ -202,6 +227,10 @@
                 <label for="description">Description</label>
                 <textarea type="textarea" id="description" name="description" required v-model="description">
                 </textarea>
+            </div>
+            <div>
+                <label for="garden">Garden: <i> Optional </i></label>
+                <GardenDropdown v-model="garden"/>
             </div>
             <div>
                 <label for="description">Visibility</label>
@@ -259,6 +288,8 @@
         row-gap: 20px;
         width: 80vw;
         max-width: 600px;
+        margin: 40px 0px;
+        overflow-y: auto;
     }
     form div{
         display: flex;
