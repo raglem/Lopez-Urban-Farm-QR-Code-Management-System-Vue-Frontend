@@ -15,9 +15,12 @@
     const plants = ref([])
     const gardens = ref([])
 
+    const store = useUserStore()
+    const { isAuthenticated } = storeToRefs(store)
+
     const mode = ref('name')
     const order = ref('descending')
-    const editing = ref(true)
+    const editing = ref( isAuthenticated ? true: false)
     const addingGarden = ref(false)
     let gardensMarkedForDeletion = []
 
@@ -25,8 +28,6 @@
     const loading = ref(false)
     const router = useRouter()
     const $toast = useToast()
-    const store = useUserStore()
-    const { isAuthenticated } = storeToRefs(store)
 
     onMounted(() => {
         const fetchAll = async () => {
@@ -226,7 +227,7 @@
             v-if="!loading && mode==='garden'" 
             v-for="garden in garden_sorted_plants" :key="garden._id"
         >
-            <header>
+            <header v-if="isAuthenticated">
                 <h2 class="link" @click="router.push(`/garden/${garden._id}`)">{{ garden.name }}</h2>
                 <div class="garden-toolbar">
                     <i class="pi pi-pencil" @click="router.push(`/garden/edit/${garden._id}`)" v-if="editing && garden._id !== 'no-garden'"></i>
