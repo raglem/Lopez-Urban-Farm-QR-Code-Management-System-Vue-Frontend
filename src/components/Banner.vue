@@ -18,7 +18,7 @@
 <template>
     <div class="banner-wrapper">
         <a href="https://www.lopezurbanfarm.com">
-            <img src="../assets/Lopez Urban Farm Web Banner-1-2-1.png" alt="banner image" class="banner-image" v-if="screenWidth < 1024"/>
+            <img src="../assets/Lopez Urban Farm Web Banner-1-2-1.png" alt="banner image" class="banner-image" v-if="screenWidth < 428"/>
             <img src="../assets/Lopez Urban Farm Web Banner-2-2-1.png" alt="banner image" class="banner-image" v-else/>
         </a>
     </div>
@@ -72,9 +72,6 @@
         font-size: 1.5rem;
     }
     @media screen and (max-width: 1024px) {
-        .banner-image{
-            aspect-ratio: 2/1;
-        }
         article{
             padding: 10px;
         }
@@ -87,9 +84,6 @@
         
     }
     @media screen and (max-width: 768px) {
-        .banner-wrapper{
-            margin: 0px 0px;
-        }
         h1{
             font-size: 1.5rem;
         }
@@ -99,6 +93,10 @@
         
     }
     @media screen and (max-width: 428px) {
+        .banner-image{
+            aspect-ratio: 2/1;
+            margin: 0px 0px;
+        }
         h1{
             font-size: 1.2rem;
         }
