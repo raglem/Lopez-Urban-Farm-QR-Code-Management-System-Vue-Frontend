@@ -11,6 +11,7 @@
     import PlantCard from '../components/PlantCard.vue';
     import { useUserStore } from '../stores/user.js';
     import { useRouter } from 'vue-router';
+import Banner from '../components/Banner.vue';
 
     const plants = ref([])
     const gardens = ref([])
@@ -20,7 +21,7 @@
 
     const mode = ref('name')
     const order = ref('descending')
-    const editing = ref( isAuthenticated ? true: false)
+    const editing = ref(false)
     const addingGarden = ref(false)
     let gardensMarkedForDeletion = []
 
@@ -181,62 +182,36 @@
         @close="addingGarden = false"
         @gardenAdded="handleNewGarden"
     />
-    <div id="wrapper">
-        <nav :class="isAuthenticated ? 'space-between' : 'view-mode'">
-            <div id="edit-wrapper" v-if="isAuthenticated">
-                <div class="btn-group" v-if="!editing">
-                    <button id="edit-btn" @click="toggleEdit">
-                        <span>Edit</span>
-                        <i class="pi pi-cog"></i>
-                    </button>
-                    <button id="add-garden-btn" @click="addingGarden = true" v-if="mode === 'garden'">
-                        <span>Add Garden</span>
-                        <i class="pi pi-plus"></i>
+    <div id="full-screen-wrapper">
+        <Banner />
+        <div id="wrapper">
+            <nav :class="isAuthenticated ? 'space-between' : 'view-mode'">
+                <div id="edit-wrapper" v-if="isAuthenticated">
+                    <div class="btn-group" v-if="!editing">
+                        <button id="edit-btn" @click="toggleEdit">
+                            <span>Edit</span>
+                            <i class="pi pi-cog"></i>
+                        </button>
+                        <button id="add-garden-btn" @click="addingGarden = true" v-if="mode === 'garden'">
+                            <span>Add Garden</span>
+                            <i class="pi pi-plus"></i>
+                        </button>
+                    </div>
+                    <button id="done-btn" v-else>
+                        <span @click="editing = false">Done</span>
                     </button>
                 </div>
-                <button id="done-btn" v-else>
-                    <span @click="editing = false">Done</span>
-                </button>
-            </div>
-            <div>
-                <label class="switch">
-                    <button id="name" :class="(mode === 'name') ? 'active' : 'inactive'" @click="mode = 'name'">Name</button>
-                    <button id="garden" :class="(mode === 'garden') ? 'active' : 'inactive'" @click="mode = 'garden'">Garden</button>
-                </label>
-                <i :class="(order === 'descending') ? 'pi pi-arrow-up' : 'pi pi-arrow-down'" @click="order = (order === 'descending') ? 'ascending' : 'descending'"></i>
-            </div>
-        </nav>
-        <div class="grid" v-if="!loading && mode==='name'">
-            <PlantCard 
-                v-for="plant in name_sorted_plants" 
-                @delete-plant="handleDeletedPlant"
-                @toggle-visibility="handleToggledVisibility"
-                :key="plant._id" 
-                :_id="plant._id"
-                :name="plant.name" 
-                :species="plant.species" 
-                :description="plant.description"
-                :garden="plant.garden"
-                :visibility="plant.visibility"
-                :image="plant?.image?.url"
-                :edit="editing"
-            />
-        </div>
-        <div 
-            class="gardens-wrapper"
-            v-if="!loading && mode==='garden'" 
-            v-for="garden in garden_sorted_plants" :key="garden._id"
-        >
-            <header v-if="isAuthenticated">
-                <h2 class="link" @click="router.push(`/garden/${garden._id}`)">{{ garden.name }}</h2>
-                <div class="garden-toolbar">
-                    <i class="pi pi-pencil" @click="router.push(`/garden/edit/${garden._id}`)" v-if="editing && garden._id !== 'no-garden'"></i>
-                    <i class="pi pi-trash" @click="handleDeleteGarden(garden._id)" v-if="editing && garden._id !== 'no-garden'"></i>
+                <div>
+                    <label class="switch">
+                        <button id="name" :class="(mode === 'name') ? 'active' : 'inactive'" @click="mode = 'name'">Name</button>
+                        <button id="garden" :class="(mode === 'garden') ? 'active' : 'inactive'" @click="mode = 'garden'">Garden</button>
+                    </label>
+                    <i :class="(order === 'descending') ? 'pi pi-arrow-up' : 'pi pi-arrow-down'" @click="order = (order === 'descending') ? 'ascending' : 'descending'"></i>
                 </div>
-            </header>
-            <div class="grid">
+            </nav>
+            <div class="grid" v-if="!loading && mode==='name'">
                 <PlantCard 
-                    v-for="plant in garden.plants" 
+                    v-for="plant in name_sorted_plants" 
                     @delete-plant="handleDeletedPlant"
                     @toggle-visibility="handleToggledVisibility"
                     :key="plant._id" 
@@ -250,14 +225,49 @@
                     :edit="editing"
                 />
             </div>
-        </div>
-        <div class="loading-wrapper" v-if="loading">
-            <Loading />
+            <div 
+                class="gardens-wrapper"
+                v-if="!loading && mode==='garden'" 
+                v-for="garden in garden_sorted_plants" :key="garden._id"
+            >
+                <header>
+                    <h2 class="link" @click="router.push(`/garden/${garden._id}`)">{{ garden.name }}</h2>
+                    <div class="garden-toolbar" v-if="isAuthenticated">
+                        <i class="pi pi-pencil" @click="router.push(`/garden/edit/${garden._id}`)" v-if="editing && garden._id !== 'no-garden'"></i>
+                        <i class="pi pi-trash" @click="handleDeleteGarden(garden._id)" v-if="editing && garden._id !== 'no-garden'"></i>
+                    </div>
+                </header>
+                <div class="grid">
+                    <PlantCard 
+                        v-for="plant in garden.plants" 
+                        @delete-plant="handleDeletedPlant"
+                        @toggle-visibility="handleToggledVisibility"
+                        :key="plant._id" 
+                        :_id="plant._id"
+                        :name="plant.name" 
+                        :species="plant.species" 
+                        :description="plant.description"
+                        :garden="plant.garden"
+                        :visibility="plant.visibility"
+                        :image="plant?.image?.url"
+                        :edit="editing"
+                    />
+                </div>
+            </div>
+            <div class="loading-wrapper" v-if="loading">
+                <Loading />
+            </div>
         </div>
     </div>
 </template>
 
 <style scoped>
+    #full-screen-wrapper{
+        display: flex;
+        flex-direction: column;
+        width: 100vw;
+        height: 100%;
+    }
     #wrapper{
         display: flex;
         flex-direction: column;

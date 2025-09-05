@@ -8,6 +8,7 @@
     import Loading from '../components/Loading.vue'
     import PlantCard from '../components/PlantCard.vue'
     import ImageCarousel from '../components/ImageCarousel.vue'
+    import Banner from '../components/Banner.vue'
 
     const props = defineProps({
         _id: {
@@ -59,35 +60,43 @@
     <div class="loading-wrapper" v-if="loading">
         <Loading />
     </div>
-    <div id="wrapper" v-else>
-        <div class="garden-wrapper">
-            <header>
-                <h1>{{ name }}</h1>
-            </header>
-            <p>{{ description }}</p>
-            <div class="image-carousel-wrapper">
-                <ImageCarousel v-if="images.length > 0" :images="imageURLs" />
+    <div id="full-screen-wrapper" v-else>
+        <Banner />
+        <div id="wrapper">
+            <div class="garden-wrapper">
+                <header>
+                    <h1>{{ name }}</h1>
+                </header>
+                <p>{{ description }}</p>
+                <div class="image-carousel-wrapper">
+                    <ImageCarousel v-if="images.length > 0" :images="imageURLs" />
+                </div>
+                <div class="grid">
+                    <PlantCard 
+                        v-for="plant in plants" 
+                        :key="plant._id" 
+                        :_id="plant._id"
+                        :name="plant.name" 
+                        :species="plant.species" 
+                        :description="plant.description"
+                        :garden="{ _id: props._id, name: name }"
+                        :visibility="true"
+                        :image="plant?.image?.url"
+                        :edit="false"
+                    />
             </div>
-            <div class="grid">
-                <PlantCard 
-                    v-for="plant in plants" 
-                    :key="plant._id" 
-                    :_id="plant._id"
-                    :name="plant.name" 
-                    :species="plant.species" 
-                    :description="plant.description"
-                    :garden="{ _id: props._id, name: name }"
-                    :visibility="true"
-                    :image="plant?.image?.url"
-                    :edit="false"
-                />
-        </div>
+            </div>
         </div>
     </div>
-
 </template>
 
 <style scoped>
+    #full-screen-wrapper{
+        display: flex;
+        flex-direction: column;
+        width: 100vw;
+        height: 100%;
+    }
     #wrapper{
         display: flex;
         flex-direction: column;
@@ -102,7 +111,7 @@
         align-items: stretch;
         max-width: 1200px;
         width: 100%;
-        row-gap: 40px;
+        row-gap: 20px;
     }
     header{
         border-bottom: 1px solid black;

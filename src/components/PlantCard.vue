@@ -2,6 +2,8 @@
     import { ref } from 'vue'
     import { useRouter } from 'vue-router'
     import { useToast } from 'vue-toast-notification'
+    import { useUserStore } from '../stores/user';
+    import { storeToRefs } from 'pinia';
     import 'vue-toast-notification/dist/theme-sugar.css';
 
     import api from '../api'
@@ -48,6 +50,9 @@
     const visibility = ref(props.visibility)
     const loading = ref(false)
     const $toast = useToast()
+
+    const store = useUserStore()
+    const { isAuthenticated } = storeToRefs(store)
 
     const handlePlant = () => {
         router.push({
@@ -134,21 +139,23 @@
     <article :class="visibility ? null : 'invisible'">
         <header>
             <div class="btn-toolbar">
-                <i
-                    class="pi pi-eye"
-                    v-if="edit && visibility"
-                    @click="handleToggleVisibility"
-                ></i>
-                <i
-                    class="pi pi-eye-slash"
-                    v-if="edit && !visibility"
-                    @click="handleToggleVisibility"
-                ></i>
-                <i
-                    class="pi pi-eye-slash"
-                    :class="'default'"
-                    v-if="!edit && !visibility"
-                ></i>
+                <div v-if="isAuthenticated">
+                    <i
+                        class="pi pi-eye"
+                        v-if="edit && visibility"
+                        @click="handleToggleVisibility"
+                    ></i>
+                    <i
+                        class="pi pi-eye-slash"
+                        v-if="edit && !visibility"
+                        @click="handleToggleVisibility"
+                    ></i>
+                    <i
+                        class="pi pi-eye-slash"
+                        :class="'default'"
+                        v-if="!edit && !visibility"
+                    ></i>
+                </div>
                 <div v-if="props.garden" class="column">
                     <h4>
                         <text @click="handlePlant" class="link">{{ props.name }}</text>
@@ -161,7 +168,7 @@
                     <h4 @click="handlePlant" class="link">{{ props.name }} | Species: {{ props.species }}</h4>
                 </div>
             </div>
-            <span class="btn-toolbar" v-if="edit">
+            <span class="btn-toolbar" v-if="isAuthenticated && edit">
                 <i 
                     class="pi pi-pencil" 
                     v-if="edit" 
