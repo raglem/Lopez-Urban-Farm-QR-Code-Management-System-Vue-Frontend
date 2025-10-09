@@ -1,5 +1,23 @@
-# Vue 3 + Vite
+# 🌿 Lopez Urban Farm Plant Catalog
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+**Live Demo:**  
+👉 [Lopez Urban Farm QR Code Management](https://lopez-urban-farm-qr-code-management-eta.vercel.app/view)
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+---
+
+### 🏡 Overview
+The **Lopez Urban Farm Plant Catalog** is a community-focused web application designed to increase engagement at a local urban farm.  
+It allows farm staff to upload, organize, and manage information about plants grown on the farm.
+
+---
+
+### 🌱 Key Features
+- **Plant Management:** Staff can edit the details of plants grown on the farm. They can also generate a QR code linking to the individual plant webpage
+- **Interactive Quiz Game:** Visitors can play a card-matching quiz to test their knowledge of the current plant catalog.  
+
+---
+
+### 🔐 Demo Credentials
+Use the following credentials to explore the demo site:
+- username: test_user
+- password: mypassword
