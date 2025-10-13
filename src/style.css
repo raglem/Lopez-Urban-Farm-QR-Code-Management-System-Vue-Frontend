@@ -14,10 +14,11 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --primary-gradient: linear-gradient(90deg,rgba(42, 155, 63, 1) 0%, rgba(149, 199, 87, 1) 50%);
-  --primary-gradient-dark: linear-gradient(90deg,rgba(42, 155, 63, 1) 0%, rgb(123, 177, 56) 50%);
-  --primary: rgba(42, 155, 63, 1);
-  --primary-light: rgb(103, 190, 49);
+  --primary-gradient: linear-gradient(90deg, #f6492f 0%, #ef6731 100%);
+  --primary-gradient-dark: linear-gradient(90deg, #f05a28 0%, #f02828 50%);
+  --primary: #f05a28;
+  --primary-light: #f69c7e;
+  --secondary: #fff7ec;
 }
 
 

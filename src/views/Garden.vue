@@ -5,10 +5,16 @@
     import { useToast } from 'vue-toast-notification'
     import 'vue-toast-notification/dist/theme-sugar.css'
     import toastConfig from '../assets/toastNotification'
+
     import Loading from '../components/Loading.vue'
     import PlantCard from '../components/PlantCard.vue'
     import ImageCarousel from '../components/ImageCarousel.vue'
     import Banner from '../components/Banner.vue'
+
+    import DownloadGarden from '../components/Garden/DownloadGarden.vue'
+    import { useUserStore } from '../stores/user'
+    import { storeToRefs } from 'pinia'
+import Download from '../components/Download.vue'
 
     const props = defineProps({
         _id: {
@@ -26,6 +32,9 @@
     const plants = ref([])
     const loading = ref(false)
     const $toast = useToast()
+
+    const userStore = useUserStore()
+    const { isAuthenticated } = storeToRefs(userStore)
 
     onMounted(() => {
         const fetchGarden = async () => {
@@ -66,6 +75,13 @@
             <div class="garden-wrapper">
                 <header>
                     <h1>{{ name }}</h1>
+                    <span>
+                        <DownloadGarden 
+                            v-if="isAuthenticated"
+                            :_id="props._id"
+                            :name="name"
+                        />
+                    </span>
                 </header>
                 <p>{{ description }}</p>
                 <div class="image-carousel-wrapper">
@@ -79,6 +95,7 @@
                         :name="plant.name" 
                         :species="plant.species" 
                         :description="plant.description"
+                        :season="plant.season"
                         :garden="{ _id: props._id, name: name }"
                         :visibility="true"
                         :image="plant?.image?.url"
@@ -114,10 +131,10 @@
         row-gap: 20px;
     }
     header{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         border-bottom: 1px solid black;
-    }
-    header > h1{
-        margin-bottom: 0px;
     }
     .image-carousel-wrapper{
         display: flex;

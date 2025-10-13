@@ -11,7 +11,7 @@
     import PlantCard from '../components/PlantCard.vue';
     import { useUserStore } from '../stores/user.js';
     import { useRouter } from 'vue-router';
-import Banner from '../components/Banner.vue';
+    import Banner from '../components/Banner.vue';
 
     const plants = ref([])
     const gardens = ref([])
@@ -219,6 +219,7 @@ import Banner from '../components/Banner.vue';
                     :name="plant.name" 
                     :species="plant.species" 
                     :description="plant.description"
+                    :season="plant.season"
                     :garden="plant.garden"
                     :visibility="plant.visibility"
                     :image="plant?.image?.url"
@@ -316,7 +317,7 @@ import Banner from '../components/Banner.vue';
     }
     .gardens-wrapper > header > h2{
         font-size: 1.5rem;
-        color: black;
+        color: var(--primary);
         margin: none;
     }
     .gardens-wrapper > header > i{
@@ -328,39 +329,36 @@ import Banner from '../components/Banner.vue';
     .btn-group{
         display: flex;
         flex-direction: row;
-        column-gap: 0px;
+        column-gap: 10px;
     }
     .switch{
         display: flex;
     }
-    .btn-group button, .switch button{
+    nav button{
         display: flex;
         justify-content: center;
         align-items: center;
         padding: 2px 10px;
-        border: 1px solid black;
-        column-gap: 10px;
-    }
-    #add-garden-btn{
-        border-left: none;
-    }
-    #done-btn{
-        border: 1px solid black;
-    }
-    .switch button.active{
-        font-size: 1rem;
-        border: 1px solid black;
-        background-color: lightgray;
-    }
-    .switch button.inactive{
-        font-size: 1rem;
-        border: 1px solid black;
         background-color: white;
+        color: black;
+        column-gap: 10px;
+        border: 1px solid var(--primary);
+        border-radius: 5px;
     }
-    .switch #date{
-        border-right: 1px solid black;
+    nav button:hover{
+        cursor: pointer;
+        background-color: var(--primary);
+        color: white;
     }
-    #garden{
+    .switch button{
+        border-radius: 0px;
+    }
+    .switch #name{
+        border-radius: 5px 0px 0px 5px;
+        border-right: 1px solid var(--primary);
+    }
+    .switch #garden{
+        border-radius: 0px 5px 5px 0px;
         border-left: none;
     }
     @media (min-width: 768px) {
@@ -372,6 +370,9 @@ import Banner from '../components/Banner.vue';
         .grid{
             grid-template-columns: repeat(3, 1fr);
         }
+    }
+    .pi-arrow-up, .pi-arrow-down{
+        color: var(--primary);
     }
     .loading-wrapper{
         display: flex;
@@ -391,8 +392,8 @@ import Banner from '../components/Banner.vue';
         align-items: center;
         column-gap: 10px;
     }
-    .pi-pencil{
-        color: var(--primary)
+    .switch i{
+        color: var(--primary);
     }
     .pi-trash{
         color: red

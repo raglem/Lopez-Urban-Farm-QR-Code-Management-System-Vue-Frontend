@@ -28,6 +28,10 @@
             type: String,
             required: true
         },
+        season: {
+            type: String,
+            required: true,
+        },
         garden: {
             type: Object,
             required: false,
@@ -156,16 +160,12 @@
                         v-if="!edit && !visibility"
                     ></i>
                 </div>
-                <div v-if="props.garden" class="column">
+                <div class="column">
                     <h4>
                         <text @click="handlePlant" class="link">{{ props.name }}</text>
-                        | 
-                        <text @click="handleGarden" class="link">{{ props.garden.name }}</text>
+                        <text v-if="props.garden" @click="handleGarden" class="link"> | {{ props.garden.name }} </text>
                     </h4>
-                    <text><i>Species: {{ props.species }}</i></text>
-                </div>
-                <div v-else>
-                    <h4 @click="handlePlant" class="link">{{ props.name }} | Species: {{ props.species }}</h4>
+                    <text><i>{{ props.species }}, {{ props.season }} Season</i></text>
                 </div>
             </div>
             <span class="btn-toolbar" v-if="isAuthenticated && edit">
@@ -184,7 +184,7 @@
             <Download 
                 :_id="props._id" 
                 :name="props.name"
-                v-if="edit === false"
+                v-if="edit === false && isAuthenticated"
             />
         </header>
         <p> 
@@ -203,11 +203,12 @@
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
-        border: 1px solid black;
-        box-shadow: 0px 0px 5px black;
+        border: 1px solid var(--primary);
+        border-radius: 5px;
+        box-shadow: 0px 0px 5px var(--primary);
     }
     article.invisible{
-        background-color: lightgray;
+        background-color: rgb(238, 221, 221);
     }
     header{
         display: flex;
@@ -218,7 +219,7 @@
         padding: 10px;
         height: 50px;
         min-height: fit-content;
-        border-bottom: 1px solid black;
+        border-bottom: 1px solid var(--primary);
     }
     header .column{
         display: flex;

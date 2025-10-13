@@ -1,7 +1,9 @@
 import QRCode from 'qrcode'
-const generateQRCode = async (_id, options = {}) => {
+const generateQRCode = async (_id, QRCodeType, options = {}) => {
     try{
-        const url = `${import.meta.env.VITE_FRONTEND_URL}/plant/${_id}`
+        const url = QRCodeType === 'Garden' ?
+            `${import.meta.env.VITE_FRONTEND_URL}/garden/${_id}` : 
+            `${import.meta.env.VITE_FRONTEND_URL}/plant/${_id}`
         const qrCode = await QRCode.toDataURL(url, {
             width: 300,
             margin: 2,
