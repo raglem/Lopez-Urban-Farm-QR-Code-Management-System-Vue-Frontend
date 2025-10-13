@@ -120,15 +120,15 @@
     }
     .btn-group button{
         padding: 5px 15px;
+        border: 1px solid #231f20;
         border-width: 1px;
         border-radius: 5px;
         text-align: center;
         color: black;
     }
-    .btn-group button.active{
-        background-color: lightgray;
-        color: black;
-    }
+    /* .btn-group button.active{
+        
+    } */
     .btn-group button.inactive, ul.menu-options > li.inactive{
         background-color: white;
     }

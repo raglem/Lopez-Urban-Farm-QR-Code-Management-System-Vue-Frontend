@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import generateQRCode from '../utils/QRCodeGenerator'
+import generateQRCode from '../../utils/QRCodeGenerator'
 
 const props = defineProps({
     _id: {
@@ -15,7 +15,7 @@ const props = defineProps({
 
 const hovering = ref(false)
 const handleDownload = async () => {
-    const QRCode = await generateQRCode(props._id, 'Plant')
+    const QRCode = await generateQRCode(props._id, 'Garden')
     const link = document.createElement('a')
     link.href = QRCode
     link.download = `${props.name}-QRCode.png`
@@ -25,7 +25,7 @@ const handleDownload = async () => {
 
 <template>
     <div 
-        id="wrapper"
+        id="download-garden-wrapper"
         @click="() => hovering = !hovering"
         @mouseenter="() => hovering = true"
         @mouseleave="() => hovering = false"
@@ -40,13 +40,12 @@ const handleDownload = async () => {
 </template>
 
 <style scoped>
-    #wrapper{
+    #download-garden-wrapper{
         display: flex;
         flex-direction: row;
-        justify-content: space-evenly;
         align-items: center;
-        position: relative;
         column-gap: 5px;
+        position: relative;
         padding: 0px;
     }
     #download-icon:hover{

@@ -8,10 +8,13 @@ import toastConfig from '../assets/toastNotification.js'
 import api from '../api.js'
 import Loading from '../components/Loading.vue'
 import GardenDropdown from '../components/Garden/GardenDropdown.vue';
+import SeasonDropdown from '../components/SeasonDropdown.vue';
+import VisibilityDropdown from '../components/VisibilityDropdown.vue';
 
 const name = ref('')
 const species = ref('')
 const description = ref('')
+const season = ref('Spring')
 const garden = ref(null)
 const visibility = ref('Public')
 // For image preview and cleanup
@@ -34,7 +37,7 @@ onUnmounted(() => {
 })
 
 const checkFields = () => {
-    if(!name.value || !species.value || !description.value || !garden.value || !visibility.value){
+    if(!name.value || !species.value || !description.value || !season.value || !visibility.value){
         $toast.error('Please fill in all required fields', toastConfig('error'));
         return false;
     }
@@ -82,12 +85,15 @@ const handleSubmit = async () => {
         fd.append('name', name.value)
         fd.append('species', species.value)
         fd.append('description', description.value)
-        fd.append('gardenId', garden.value._id)
+        fd.append('season', season.value)
+        if(garden.value){
+            fd.append('gardenId', garden.value._id)
+        }
         fd.append('visibility', visibility.value === 'Public' ? true : false)
         if(imageFile){
             fd.append('image', imageFile)
         }
-        const response = await api.post('/plants/add', fd, {
+        await api.post('/plants/add', fd, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -96,10 +102,11 @@ const handleSubmit = async () => {
         router.push('/view')
     }
     catch(err){
-        if(err.response.data.message){
+        console.error(err)
+        if(err?.response?.data?.message){
             $toast.error(`Error adding plant: ${err.response.data.message}`, toastConfig('error'));
         }
-        else if(err.message){
+        else if(err?.message){
             $toast.error(`Error adding plant: ${err.message}`, toastConfig('error'));
         }
         else{
@@ -129,28 +136,29 @@ const handlePreview = () => {
         <form @submit.prevent="handleSubmit">
             <h1>Add New Plant</h1>
             <div>
-                <label for="name">Name</label>
-                <input type="text" id="name" name="name" required v-model="name">
+                <label for="plant-name">Name</label>
+                <input type="text" id="plant-name" name="name" required v-model="name">
             </div>
             <div>
-                <label for="species">Species</label>
-                <input type="text" id="species" name="species" required v-model="species">
+                <label for="plant-species">Species</label>
+                <input type="text" id="species" name="plant-species" required v-model="species">
             </div>
             <div>
-                <label for="description">Description</label>
-                <textarea type="textarea" id="description" name="description" required v-model="description">
+                <label for="plant-description">Description</label>
+                <textarea type="textarea" id="plant-description" name="description" required v-model="description">
                 </textarea>
+            </div>
+            <div>
+                <label for="garden">Season: </label>
+                <SeasonDropdown v-model="season"/>
             </div>
             <div>
                 <label for="garden">Garden: <i> Optional </i></label>
                 <GardenDropdown v-model="garden"/>
             </div>
             <div>
-                <label for="visibility">Visibility</label>
-                <select id="visibility" name="visibility" required v-model="visibility">
-                    <option>Public</option>
-                    <option>Private</option>
-                </select>
+                <label for="plant-visibility">Visibility</label>
+                <VisibilityDropdown v-model="visibility"/>
             </div>
             <div>
                 <label for="image">Image: <i> Optional </i></label>
@@ -220,7 +228,7 @@ const handlePreview = () => {
         font-size: 1.2rem;
         height: 100px;
         resize: none;
-        font-family: 'Verdana', 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+        font-family: 'Verdana', 'Gill Sans', 'Gill Sans MT', 'Calibri', 'Trebuchet MS', sans-serif
     }
     .image-wrapper{
         display: flex;
@@ -231,7 +239,8 @@ const handlePreview = () => {
         width: 100%;
         row-gap: 20px;
         aspect-ratio: 4/1;
-        border: 1px solid black;
+        border: 1px solid var(--primary);
+        border-radius: 5px;
         font-size: 2rem;
     }
     .image-wrapper i{
@@ -297,8 +306,33 @@ const handlePreview = () => {
         align-items: center;
         column-gap: 10px;
     }
+    @media (max-width: 600px) {
+        .btn-toolbar {
+            flex-direction: column;
+            row-gap: 5px;
+            align-items: stretch;
+        }
+        .btn-toolbar button {
+            width: 100%;
+        }
+        .btn-group{
+            display: flex;
+            flex-direction: column;
+            row-gap: 5px;
+            align-items: stretch;
+            justify-content: start;
+        }
+        .btn-group button {
+            width: 100%;
+        }
+    }
     .btn-group button{
         color: white;
+    }
+    input, textarea {
+        border: 1px solid var(--primary);
+        border-radius: 5px;
+        padding: 5px;
     }
     #preview{
         background: lightgray;

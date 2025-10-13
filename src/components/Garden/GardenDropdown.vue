@@ -107,7 +107,7 @@
         flex-direction: column;
         background-color: white;
         color: black;
-        border: 1px solid black;
+        border: 1px solid var(--primary);
         list-style-type: none;
         padding: 0px;
         border-radius: 5px;
@@ -118,7 +118,7 @@
         justify-content: space-between;
         align-items: center;
         font-size: 1.5rem;
-        border: 1px solid black;
+        border: 1px solid var(--primary);
         padding: 4px 8px;
         border-radius: 5px;
     }
@@ -146,5 +146,8 @@
         align-items: center;
         padding-right: 8px;
         background-color: rgb(224, 223, 223);
+    }
+    i{
+        color: var(--primary);
     }
 </style>

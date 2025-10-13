@@ -8,12 +8,15 @@
     import Loading from '../components/Loading.vue'
     import toastConfig from '../assets/toastNotification.js'
     import GardenDropdown from '../components/Garden/GardenDropdown.vue';
+import SeasonDropdown from '../components/SeasonDropdown.vue';
+import VisibilityDropdown from '../components/VisibilityDropdown.vue';
 
     const props = defineProps({'_id': { type: String, required: true }})
     const originalFields = [
         'name',
         'species',
         'description',
+        'season',
         'garden',
         'visibility'
     ]
@@ -32,6 +35,7 @@
                 name.value = plant.name
                 species.value = plant.species
                 description.value = plant.description
+                season.value = plant.season
                 garden.value = plant.garden || null
                 visibility.value = plant.visibility ? 'Public' : 'Private'
                 imageSrc.value = plant?.image?.url || null
@@ -58,6 +62,7 @@
     const name = ref("")
     const species = ref("")
     const description = ref("")
+    const season = ref("")
     const garden = ref(null)
     const visibility = ref("")
     
@@ -79,7 +84,7 @@
     })
 
     const checkFields = () => {
-        if(!name.value || !species.value || !description.value){
+        if(!name.value || !species.value || !description.value || !season.value || !visibility.value){
             $toast.error('Please fill in all required fields', toastConfig('error'));
             return false;
         }
@@ -139,6 +144,9 @@
         if(description.value !== originalFields.description){
             fd.append('description', description.value)
         }
+        if(season.value !== originalFields.season){
+            fd.append('season', season.value)
+        }
         if(garden.value !== originalFields.garden){
             fd.append('garden', garden.value ? garden.value._id : null)
         }
@@ -165,10 +173,10 @@
             $toast.success(`${name.value} was successfully updated`, toastConfig('success'));
         }
         catch(err){
-            if(err.response.data.message){
+            if(err.response?.data?.message){
                 $toast.error(`Error updating plant: ${err.response.data.message}`, toastConfig('error'));
             }
-            else if(err.message){
+            else if(err?.message){
                 $toast.error(`Error updating plant: ${err.message}`, toastConfig('error'));
             }
             else{
@@ -193,10 +201,10 @@
             $toast.success(`${name.value} was successfully deleted`, toastConfig('success'));
         }
         catch(err){
-            if(err.response.data.message){
+            if(err?.response?.data?.message){
                 $toast.error(`Error deleting plant: ${err.response.data.message}`, toastConfig('error'));
             }
-            else if(err.message){
+            else if(err?.message){
                 $toast.error(`Error deleting plant: ${err.message}`, toastConfig('error'));
             }
             else{
@@ -216,28 +224,29 @@
         <form @submit.prevent="handleSubmit" v-else>
             <h1>Update {{  originalFields.name }}</h1>
             <div>
-                <label for="name">Name</label>
-                <input type="text" id="name" name="name" required v-model="name">
+                <label for="plant-name">Name</label>
+                <input type="text" id="plant-name" name="name" required v-model="name">
             </div>
             <div>
-                <label for="species">Species</label>
-                <input type="text" id="species" name="species" required v-model="species">
+                <label for="plant-species">Species</label>
+                <input type="text" id="plant-species" name="species" required v-model="species">
             </div>
             <div>
-                <label for="description">Description</label>
-                <textarea type="textarea" id="description" name="description" required v-model="description">
+                <label for="plant-description">Description</label>
+                <textarea type="textarea" id="plant-description" name="description" required v-model="description">
                 </textarea>
+            </div>
+            <div>
+                <label for="garden">Season</label>
+                <SeasonDropdown v-model="season"/>
             </div>
             <div>
                 <label for="garden">Garden: <i> Optional </i></label>
                 <GardenDropdown v-model="garden"/>
             </div>
             <div>
-                <label for="description">Visibility</label>
-                <select id="description" name="description" required v-model="visibility">
-                    <option>Public</option>
-                    <option>Private</option>
-                </select>
+                <label for="plant-visibility">Visibility</label>
+                <VisibilityDropdown v-model="visibility"/>
             </div>
             <div>
                 <label for="image">Image: <i> Optional </i></label>
@@ -317,7 +326,7 @@
         width: 100%;
         row-gap: 20px;
         aspect-ratio: 4/1;
-        border: 1px solid black;
+        border: 1px solid var(--primary);
         font-size: 2rem;
     }
     .image-wrapper i{
@@ -383,6 +392,26 @@
         align-items: center;
         column-gap: 10px;
     }
+    @media (max-width: 600px) {
+        .btn-toolbar {
+            flex-direction: column;
+            row-gap: 5px;
+            align-items: stretch;
+        }
+        .btn-toolbar button {
+            width: 100%;
+        }
+        .btn-group{
+            display: flex;
+            flex-direction: column;
+            row-gap: 5px;
+            align-items: stretch;
+            justify-content: start;
+        }
+        .btn-group button {
+            width: 100%;
+        }
+    }
     #update{
         background: rgb(10, 174, 10);
         color: white;
@@ -394,5 +423,10 @@
     #delete{
         background: rgb(242, 52, 52);
         color: white;
+    }
+    input, textarea {
+        border: 1px solid var(--primary);
+        border-radius: 5px;
+        padding: 5px;
     }
 </style>
