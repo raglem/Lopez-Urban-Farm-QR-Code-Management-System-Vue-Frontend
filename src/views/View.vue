@@ -202,10 +202,10 @@
                     </button>
                 </div>
                 <div>
-                    <label class="switch">
+                    <div class="switch">
                         <button id="name" :class="(mode === 'name') ? 'active' : 'inactive'" @click="mode = 'name'">Name</button>
                         <button id="garden" :class="(mode === 'garden') ? 'active' : 'inactive'" @click="mode = 'garden'">Garden</button>
-                    </label>
+                    </div>
                     <i :class="(order === 'descending') ? 'pi pi-arrow-up' : 'pi pi-arrow-down'" @click="order = (order === 'descending') ? 'ascending' : 'descending'"></i>
                 </div>
             </nav>
@@ -248,6 +248,7 @@
                         :name="plant.name" 
                         :species="plant.species" 
                         :description="plant.description"
+                        :season="plant.season"
                         :garden="plant.garden"
                         :visibility="plant.visibility"
                         :image="plant?.image?.url"
@@ -333,6 +334,8 @@
     }
     .switch{
         display: flex;
+        flex-direction: row;
+        column-gap: 0px;
     }
     nav button{
         display: flex;
@@ -345,11 +348,6 @@
         border: 1px solid var(--primary);
         border-radius: 5px;
     }
-    nav button:hover{
-        cursor: pointer;
-        background-color: var(--primary);
-        color: white;
-    }
     .switch button{
         border-radius: 0px;
     }
@@ -357,16 +355,26 @@
         border-radius: 5px 0px 0px 5px;
         border-right: 1px solid var(--primary);
     }
+    .switch #name:hover{
+        cursor: pointer;
+        background-color: var(--primary);
+        color: white;
+    }
     .switch #garden{
         border-radius: 0px 5px 5px 0px;
         border-left: none;
+    }
+    .switch #garden:hover{
+        cursor: pointer;
+        background-color: var(--primary);
+        color: white;
     }
     @media (min-width: 768px) {
         .grid{
             grid-template-columns: repeat(2, 1fr);
         }
     }
-    @media (min-width: 1024px) {
+    @media (min-width: 1280px) {
         .grid{
             grid-template-columns: repeat(3, 1fr);
         }
