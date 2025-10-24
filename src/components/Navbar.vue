@@ -126,9 +126,10 @@
         text-align: center;
         color: black;
     }
-    /* .btn-group button.active{
-        
-    } */
+    .btn-group button.active{
+        background-color: lightgray;
+        color: black;
+    }
     .btn-group button.inactive, ul.menu-options > li.inactive{
         background-color: white;
     }
