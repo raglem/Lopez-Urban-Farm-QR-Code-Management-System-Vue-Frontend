@@ -50,7 +50,14 @@
             visiblePlants.reverse();
             invisiblePlants.reverse();
         }
-        return [...visiblePlants, ...invisiblePlants];
+        
+        // Combine visible and invisible plants based on authentication
+        if(isAuthenticated){
+            return [...visiblePlants, ...invisiblePlants]
+        }
+        else{
+            return visiblePlants
+        }
     });
 
     const garden_sorted_plants = computed(() => {
@@ -61,8 +68,16 @@
             visiblePlants.sort((a, b) => a.name.localeCompare(b.name));
             invisiblePlants.sort((a, b) => a.name.localeCompare(b.name));
 
-            return { ...garden, plants: [...visiblePlants, ...invisiblePlants] }
+            // Combine visible and invisible plants based on authentication
+            if(isAuthenticated){
+                return { ...garden, plants: [...visiblePlants, ...invisiblePlants] }
+            }
+            else{
+                return { ...garden, plants: visiblePlants }
+            }
+            
         })
+
         tmp.sort((a, b) => a.name.localeCompare(b.name))
 
         if(order.value === 'ascending') {
@@ -74,14 +89,17 @@
         // Handle plants without a garden
         const unassigned_plants = plants.value.filter(p => !p.garden)
         if(unassigned_plants.length > 0) {
-            const visiblePlants = unassigned_plants.filter(p => p.visibility !== false).sort((a, b) => a.name.localeCompare(b.name))
+            const visiblePlants = unassigned_plants.filter(p => p.visibility !== false).sort((a, b) => a.name.localeCompare(b.name)) 
             const invisiblePlants = unassigned_plants.filter(p => p.visibility === false).sort((a, b) => a.name.localeCompare(b.name))
             tmp.push({
                 _id: 'no-garden',
                 name: 'No Garden',
-                plants: [...visiblePlants, ...invisiblePlants],
+                plants: isAuthenticated ? [...visiblePlants, ...invisiblePlants] : visiblePlants,
             })
         }
+
+        tmp = tmp.filter(garden => garden.plants.length > 0)
+        console.log(tmp)
         return tmp
     })
 

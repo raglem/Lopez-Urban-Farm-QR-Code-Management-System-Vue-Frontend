@@ -77,16 +77,9 @@ import { useRouter } from 'vue-router'
             <div class="garden-wrapper">
                 <header>
                     <h1>{{ name }}</h1>
-                    <nav class="garden-edit">
-                        <DownloadGarden 
-                            v-if="isAuthenticated"
-                            :_id="props._id"
-                            :name="name"
-                        />
-                        <button 
-                            v-if="isAuthenticated"
-                            @click="() => router.push(`/garden/edit/${props._id}`)"
-                        >
+                    <nav class="garden-edit" v-if="isAuthenticated">
+                        <DownloadGarden :_id="props._id" :name="name" />
+                        <button @click="() => router.push(`/garden/edit/${props._id}`)">
                             Edit Garden
                         </button>
                     </nav>

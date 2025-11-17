@@ -44,7 +44,7 @@ router.beforeEach((to, from, next) => {
   const isAuthenticated = store.checkAuthentication()
 
   if( !isAuthenticated && privateRoutes.some(route => route.name === to.name) ) {
-    return next('/login')
+    return next('/view')
   }
   next()
 })

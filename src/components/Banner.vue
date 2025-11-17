@@ -13,14 +13,24 @@
     onUnmounted(() => {
         window.removeEventListener('resize', updateWidth);
     });
+
+    const redirectToMainWebsite = () => {
+        window.location.href = 'https://lopezurbanfarm.com/'
+    }
 </script>
 
 <template>
     <div class="banner-wrapper">
-        <a href="https://www.lopezurbanfarm.com">
-            <img src="../assets/Lopez Urban Farm Web Banner-1-2-1.png" alt="banner image" class="banner-image" v-if="screenWidth < 428"/>
-            <img src="../assets/Lopez Urban Farm Web Banner-2-2-1.png" alt="banner image" class="banner-image" v-else/>
-        </a>
+        <img 
+            src="../assets/Lopez Urban Farm Web Banner-1-2-1.png" 
+            alt="banner image" class="banner-image" v-if="screenWidth < 428"
+            @click="redirectToMainWebsite"
+        />
+        <img 
+            src="../assets/Lopez Urban Farm Web Banner-2-2-1.png" 
+            alt="banner image" class="banner-image" v-else
+            @click="redirectToMainWebsite"    
+        />
     </div>
 </template>
 
@@ -62,6 +72,16 @@
     @media screen and (min-width: 768px) {
         .banner-image{
             aspect-ratio: 4/1;
+        }
+    }
+    @media screen and (min-width: 1200px) {
+        .banner-image {
+            width: 75%;
+        }
+    }
+    @media screen and (min-width: 1600px) {
+        .banner-image {
+            width: 50%;
         }
     }
 </style>
