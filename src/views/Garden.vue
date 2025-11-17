@@ -15,6 +15,7 @@
     import { useUserStore } from '../stores/user'
     import { storeToRefs } from 'pinia'
 import Download from '../components/Download.vue'
+import { useRouter } from 'vue-router'
 
     const props = defineProps({
         _id: {
@@ -32,6 +33,7 @@ import Download from '../components/Download.vue'
     const plants = ref([])
     const loading = ref(false)
     const $toast = useToast()
+    const router = useRouter()
 
     const userStore = useUserStore()
     const { isAuthenticated } = storeToRefs(userStore)
@@ -75,13 +77,19 @@ import Download from '../components/Download.vue'
             <div class="garden-wrapper">
                 <header>
                     <h1>{{ name }}</h1>
-                    <span>
+                    <nav class="garden-edit">
                         <DownloadGarden 
                             v-if="isAuthenticated"
                             :_id="props._id"
                             :name="name"
                         />
-                    </span>
+                        <button 
+                            v-if="isAuthenticated"
+                            @click="() => router.push(`/garden/edit/${props._id}`)"
+                        >
+                            Edit Garden
+                        </button>
+                    </nav>
                 </header>
                 <p>{{ description }}</p>
                 <div class="image-carousel-wrapper">
@@ -135,6 +143,26 @@ import Download from '../components/Download.vue'
         justify-content: space-between;
         align-items: center;
         border-bottom: 1px solid black;
+    }
+    nav.garden-edit{
+        display: flex;
+        column-gap: 10px;
+    }
+    nav button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2px 10px;
+        background-color: white;
+        color: black;
+        column-gap: 10px;
+        border: 1px solid var(--primary);
+        border-radius: 5px;
+    }
+    nav button:hover {
+        background-color: var(--primary);
+        color: white;
+        cursor: pointer;
     }
     .image-carousel-wrapper{
         display: flex;

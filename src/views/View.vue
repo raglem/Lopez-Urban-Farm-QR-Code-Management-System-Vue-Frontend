@@ -228,7 +228,7 @@
             </div>
             <div 
                 class="gardens-wrapper"
-                v-if="!loading && mode==='garden'" 
+                v-if="!loading && mode==='garden'"
                 v-for="garden in garden_sorted_plants" :key="garden._id"
             >
                 <header>
