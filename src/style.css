@@ -21,7 +21,10 @@
   --secondary: #fff7ec;
 }
 
-
+html {
+  background-color: white !important;
+  color: black !important;
+}
 
 a {
   text-decoration: inherit;
