@@ -72,7 +72,7 @@
 <template>
     <div class="overlay">
         <form @submit.prevent>
-            <h1>Update Garden</h1>
+            <h1>Edit Garden</h1>
             <div class="input-group">
                 <div class="input-wrapper">
                     <label for="gardenName">Name</label>
@@ -106,7 +106,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5); /* semi-transparent black */
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -119,6 +119,7 @@ form{
     min-width: 300px;
     width: 50vw;
     max-width: 600px;
+    height: fit-content;
     background-color: white;
     row-gap: 20px;
     padding: 20px;
@@ -128,9 +129,12 @@ form{
 }
 textarea{
     font-size: 1.2rem;
-    height: 100px;
+    min-height: 100px;
+    height: fit-content;
+    max-height: 300px;
+    field-sizing: content;
     resize: none;
-    font-family: 'Verdana', 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+    font-family: 'Verdana', 'Gill Sans', 'Gill Sans MT', 'Calibri', 'Trebuchet MS', sans-serif
 }
 .input-group{
     display: flex;
@@ -138,13 +142,14 @@ textarea{
     align-items: stretch;
     row-gap: 20px;
 }
-.input-group > div{
+.input-group > div.input-wrapper{
     display: flex;
     flex-direction: column;
     font-size: 1.5rem;
     width: 100%;
 }
 input, textarea, select{
+    outline-color: var(--primary);
     font-size: 1.5rem;
     padding: 4px;
 }
@@ -170,7 +175,7 @@ input, textarea, select{
     opacity: 80%;
 }
 #create{
-    background: rgb(10, 174, 10);
+    background: var(--primary);
     color: white;
     white-space: nowrap;
 }

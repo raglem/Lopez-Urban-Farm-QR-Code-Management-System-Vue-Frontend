@@ -127,7 +127,7 @@
         color: black;
     }
     .btn-group button.active{
-        background-color: lightgray;
+        /* background-color: lightgray; */
         color: black;
     }
     .btn-group button.inactive, ul.menu-options > li.inactive{

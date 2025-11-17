@@ -10,7 +10,8 @@
     import GardenImage from '../components/Garden/GardenImage.vue'
     import AddGardenImage from '../components/Garden/AddGardenImage.vue'
     import EmptyImageCarousel from '../components/EmptyImageCarousel.vue'
-    import EditGardenFields from '../components/Garden/EditGardenFields.vue'
+    import EditGardenCard from '../components/Garden/EditGardenCard.vue'
+import { useRouter } from 'vue-router'
 
     const props = defineProps({
         _id: {
@@ -32,6 +33,7 @@
     const editMode = ref(false)
     const manageImagesMode = ref(false)
 
+    const router = useRouter()
     const loading = ref(false)
     const $toast = useToast()
 
@@ -84,7 +86,7 @@
         @upload="handleAddedImage"
         @cancel="addMode=false"
     />
-    <EditGardenFields
+    <EditGardenCard
         :_id="props._id"
         :name="name"
         :description="description"
@@ -98,17 +100,10 @@
     <div id="wrapper" v-else>
         <div class="garden-wrapper">
             <header>
-                <h1>{{ name }}</h1>
-                <div class="btn-toolbar" v-if="!editMode">
-                    <button id="edit-image" @click="editMode = true">
-                        Edit <i class="pi pi-cog"></i>
-                    </button>
-                </div>
-                <div class="btn-toolbar" v-else>
-                    <button @click="editMode = false">
-                        Done
-                    </button>
-                </div>
+                <h1 @click="() => router.push(`/garden/${props._id}`)">{{ name }}</h1>
+                <button id="edit-garden" @click="editMode = true">
+                    Edit <i class="pi pi-cog"></i>
+                </button>
             </header>
             <p>{{ description }}</p>
             <div class="image-carousel-wrapper">
@@ -116,19 +111,21 @@
                 <EmptyImageCarousel :message="'No Images Uploaded'"v-else />
             </div>
             <br/>
-            <div class="btn-toolbar" v-if="!manageImagesMode">
-                <button id="add-image" @click="addMode = true">
-                    Add <i class="pi pi-plus"></i>
-                </button>
-                <button id="edit-image" @click="manageImagesMode = true">
-                    Manage <i class="pi pi-cog"></i>
-                </button>
-            </div>
-            <div class="btn-toolbar" v-else>
-                <button @click="manageImagesMode = false">
-                    Done
-                </button>
-            </div>
+            <nav>
+                <div class="switch" v-if="!manageImagesMode">
+                    <button id="add-image" @click="addMode = true">
+                        Add <i class="pi pi-plus"></i>
+                    </button>
+                    <button id="edit-image" @click="manageImagesMode = true">
+                        Manage <i class="pi pi-cog"></i>
+                    </button>
+                </div>
+                <div class="switch" v-else>
+                    <button @click="manageImagesMode = false">
+                        Done
+                    </button>
+                </div>
+            </nav>
             <div class="images-wrapper">
                 <GardenImage 
                     v-for="image in images" 
@@ -169,6 +166,11 @@
         align-items: center;
         border-bottom: 1px solid black;
     }
+    h1:hover{
+        cursor: pointer;
+        text-decoration: underline;
+        color: var(--primary);
+    }
     .image-carousel-wrapper{
         display: flex;
         justify-content: center;
@@ -190,28 +192,38 @@
             grid-template-columns: repeat(3, 1fr);
         }
     }
-    .btn-toolbar{
+    nav{
         display: flex;
-        flex-direction: row;
         justify-content: flex-end;
         align-items: center;
     }
-    .btn-toolbar button{
+    .switch{
         display: flex;
         flex-direction: row;
-        justify-content: space-between;
+        column-gap: 0px;
+    }
+    header button, .switch button{
+        display: flex;
+        justify-content: center;
         align-items: center;
-        column-gap: 5px;
-        padding: 5px 10px;
-        border: 1px solid black;
-        width: fit-content;
+        padding: 2px 10px;
+        background-color: white;
+        color: black;
+        column-gap: 10px;
+        border: 1px solid var(--primary);
+        border-radius: 5px;
     }
-    .btn-toolbar button#add-image{
-        border-right: none;
+    .switch button#add-image{
+        border-radius: 5px 0px 0px 5px;
+        border-right: 1px solid var(--primary);
     }
-    .btn-toolbar button:hover{
+    .switch button#edit-image{
+        border-left: 0px;
+        border-radius: 0px 5px 5px 0px;
+    }
+    header button:hover, .switch button:hover{
         cursor: pointer;
-        background-color: darkgray;
+        background-color: var(--primary);
         color: white;
     }
     .loading-wrapper{
