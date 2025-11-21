@@ -33,6 +33,7 @@ const fetchPlant = async () => {
     try{
         const response = await api.get(`/plants/${props._id}`)
         const data = response.data.data
+        console.log(data)
 
         name.value = data.name
         species.value = data.species
@@ -42,15 +43,7 @@ const fetchPlant = async () => {
     }
     catch(err){
         console.log(err)
-        if(err?.response?.data?.message){
-            $toast.error(`Error logging in: ${err.response.data.message}`, toastConfig('error'));
-        }
-        else if(err.message){
-            $toast.error(`Error logging in: ${err.message}`, toastConfig('error'));
-        }
-        else{
-            $toast.error('Error logging in', toastConfig('error'));
-        }
+        $toast.error(`Error fetching plant`, toastConfig('error'));
     }
     finally {
         loading.value = false
@@ -58,10 +51,11 @@ const fetchPlant = async () => {
 }
 
 const handleGarden = () => {
+    console.log(garden.value)
     router.push({
         name: 'Garden',
         params: {
-            _id: props._id
+            _id: garden.value._id
         }
     });
 }
@@ -101,7 +95,6 @@ const handleGarden = () => {
         height: 100%;
         width: 100%;
         overflow-y: auto;
-        padding: 10px;
     }
     article{
         display: flex;
@@ -111,15 +104,16 @@ const handleGarden = () => {
         box-shadow: 0px 0px 5px black;
         width: 80vw;
         max-width: 600px;
+        margin: 20px 0px;
     }
     header{
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
+        padding: 10px 0px;
         column-gap: 5px;
         padding: 10px;
-        height: 50px;
         min-height: fit-content;
         border-bottom: 1px solid black;
     }

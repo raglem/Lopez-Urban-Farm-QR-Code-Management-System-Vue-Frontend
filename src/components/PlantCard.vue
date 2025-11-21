@@ -163,7 +163,8 @@
                 <div class="column">
                     <h4>
                         <text @click="handlePlant" class="link">{{ props.name }}</text>
-                        <text v-if="props.garden" @click="handleGarden" class="link"> | {{ props.garden.name }} </text>
+                        <text> | </text>
+                        <text v-if="props.garden" @click="handleGarden" class="link"> {{ props.garden.name }} </text>
                     </h4>
                     <text><i>{{ props.species }}, {{ props.season }} Season</i></text>
                 </div>
