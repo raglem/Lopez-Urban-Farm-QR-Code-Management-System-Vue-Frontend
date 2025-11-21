@@ -192,7 +192,7 @@
         transition: background-color 0.3s ease-in-out;
     }
     .card-matched{
-        background-color: var(--primary);
+        background-color: green;
         transition: background-color 0.3s ease-in-out;
     }
     .card-wrong{
